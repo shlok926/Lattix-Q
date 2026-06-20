@@ -1,6 +1,13 @@
 import { ChatRequest, SSEEvent, SSEStartEvent, SSEChunkEvent, SSEDoneEvent } from "../types/analyst.types";
 
-const BASE = import.meta.env.VITE_API_URL || "/api/v1";
+const getApiBase = () => {
+  if (typeof window !== "undefined" && window.location.port === "3000") {
+    return "http://localhost:8000/v1";
+  }
+  return import.meta.env.VITE_API_URL || "/api/v1";
+};
+
+const BASE = getApiBase();
 
 export const analystApi = {
   newSession: async (): Promise<string> => {
