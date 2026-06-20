@@ -18,6 +18,18 @@ def get_claude_client() -> anthropic.AsyncAnthropic:
 def generate_offline_fallback(query: str) -> str:
     query_lower = query.lower()
     
+    # Try dynamic RAG Q&A database first
+    try:
+        from app.core.rag import rag_engine
+        matches = rag_engine.search(query, k=1)
+        if matches:
+            chunk, score = matches[0]
+            if score > 0.12:
+                log.info("Offline fallback matched local RAG database", score=score)
+                return chunk["text"]
+    except Exception as e:
+        log.error("Failed to perform offline RAG search", error=str(e))
+    
     # 1. Shor's / RSA / ECC Attack
     if "shor" in query_lower or "rsa" in query_lower or "ecc" in query_lower or "break" in query_lower:
         return """<risk_level>CRITICAL</risk_level>

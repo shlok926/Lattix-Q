@@ -13,10 +13,14 @@ import {
   Terminal,
   Database,
   Globe,
-  Layers
+  Layers,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar: React.FC = () => {
+  const { logout } = useAuth();
+
   const navItemClass = ({ isActive }: { isActive: boolean }) => {
     const base = "flex items-center gap-3 h-10 px-4 transition-all duration-200 border-l-[3px]";
     if (isActive) {
@@ -162,14 +166,23 @@ export const Sidebar: React.FC = () => {
           )}
         </NavLink>
 
-        <div className="p-4 flex items-center gap-3 bg-[#0D1421]/30 border-t border-[#1E2D45]/40">
-          <div className="w-8 h-8 rounded-full bg-[#1E2D45] flex items-center justify-center text-[#00C4E8] font-bold text-[13px] shrink-0">
-            QS
+        <div className="p-4 flex items-center justify-between bg-[#0D1421]/30 border-t border-[#1E2D45]/40">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-[#1E2D45] flex items-center justify-center text-[#00C4E8] font-bold text-[13px] shrink-0">
+              QS
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="text-[12px] font-semibold text-[#E2E8F0] leading-none">Admin User</span>
+              <span className="text-[10px] text-[#475569] font-mono truncate mt-1">admin@quantumshield.io</span>
+            </div>
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[12px] font-semibold text-[#E2E8F0] leading-none">Admin User</span>
-            <span className="text-[10px] text-[#475569] font-mono truncate mt-1">admin@quantumshield.io</span>
-          </div>
+          <button 
+            onClick={logout} 
+            title="Log Out"
+            className="p-1.5 rounded hover:bg-[#EF4444]/20 text-[#94A3B8] hover:text-[#EF4444] transition-colors shrink-0"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </div>
