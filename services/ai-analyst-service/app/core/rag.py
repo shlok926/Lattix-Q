@@ -38,15 +38,36 @@ class KnowledgeBaseRAG:
     def sanitize_input(self, query: str) -> str:
         """
         Scan input queries for potential Prompt Injection keywords and patterns.
+        Uses proximity and association matching for higher reliability.
         """
         cleaned_query = query.strip()
         query_lower = cleaned_query.lower()
         
-        for pattern in BLOCKED_PATTERNS:
-            if re.search(pattern, query_lower):
-                log.warning("Security threat detected: Prompt injection attempt blocked.", query=cleaned_query)
-                raise PromptInjectionError("Security violation: Restricted input pattern detected.")
-                
+        # Rule 1: "ignore" and "instruction"/"rule"
+        if "ignore" in query_lower and ("instruction" in query_lower or "rule" in query_lower or "guideline" in query_lower):
+            log.warning("Security threat detected: Ignore instructions injection blocked.", query=cleaned_query)
+            raise PromptInjectionError("Security violation: Restricted input pattern detected.")
+            
+        # Rule 2: "bypass" and "safety"/"filter"/"guard"
+        if "bypass" in query_lower and ("safety" in query_lower or "filter" in query_lower or "guard" in query_lower):
+            log.warning("Security threat detected: Safety bypass attempt blocked.", query=cleaned_query)
+            raise PromptInjectionError("Security violation: Restricted input pattern detected.")
+            
+        # Rule 3: "system" and "override"
+        if "system" in query_lower and "override" in query_lower:
+            log.warning("Security threat detected: System override attempt blocked.", query=cleaned_query)
+            raise PromptInjectionError("Security violation: Restricted input pattern detected.")
+            
+        # Rule 4: "forget" and "previous"/"rule"/"instruction"
+        if "forget" in query_lower and ("previous" in query_lower or "rule" in query_lower or "instruction" in query_lower):
+            log.warning("Security threat detected: Forget instructions attempt blocked.", query=cleaned_query)
+            raise PromptInjectionError("Security violation: Restricted input pattern detected.")
+            
+        # Rule 5: "dan mode" or "do anything now"
+        if "dan mode" in query_lower or ("do" in query_lower and "anything" in query_lower and "now" in query_lower):
+            log.warning("Security threat detected: DAN jailbreak attempt blocked.", query=cleaned_query)
+            raise PromptInjectionError("Security violation: Restricted input pattern detected.")
+            
         # Remove any raw HTML/XML tags from the query to prevent injection in context XML packaging
         cleaned_query = re.sub(r"<[^>]*>", "", cleaned_query)
         return cleaned_query
