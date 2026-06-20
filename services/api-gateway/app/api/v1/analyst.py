@@ -15,19 +15,48 @@ async def new_session():
 @router.post("/stream")
 async def stream_proxy(request: Request):
     body = await request.body()
-    async def stream_from_upstream():
-        async with httpx.AsyncClient(timeout=180) as client:
-            async with client.stream(
-                "POST", f"{ANALYST_SVC}/analyst/stream",
-                content=body, headers={"Content-Type": "application/json"},
-            ) as upstream:
-                async for chunk in upstream.aiter_bytes():
+    client = httpx.AsyncClient(timeout=180)
+    
+    try:
+        req = client.build_request(
+            "POST", f"{ANALYST_SVC}/analyst/stream",
+            content=body, headers={"Content-Type": "application/json"}
+        )
+        resp = await client.send(req, stream=True)
+        
+        if resp.status_code != 200:
+            content = await resp.aread()
+            await client.aclose()
+            detail = "Upstream service error"
+            try:
+                import json
+                err_json = json.loads(content)
+                if isinstance(err_json, dict) and "detail" in err_json:
+                    detail = err_json["detail"]
+            except Exception:
+                pass
+            from fastapi import HTTPException
+            raise HTTPException(status_code=resp.status_code, detail=detail)
+            
+        async def stream_generator():
+            try:
+                async for chunk in resp.aiter_bytes():
                     yield chunk
-    return StreamingResponse(
-        stream_from_upstream(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
-    )
+            finally:
+                await resp.aclose()
+                await client.aclose()
+                
+        return StreamingResponse(
+            stream_generator(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "Connection": "keep-alive"},
+        )
+    except Exception as e:
+        await client.aclose()
+        if isinstance(e, HTTPException):
+            raise e
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/session/{session_id}")
 async def clear_session(session_id: str):

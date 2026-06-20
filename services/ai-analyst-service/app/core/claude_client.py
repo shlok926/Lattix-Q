@@ -128,11 +128,12 @@ class ClaudeAnalystClient:
         log.info("Streaming Claude response", session_id=session_id, model=settings.CLAUDE_MODEL)
         
         query = messages[-1]["content"] if messages else ""
+        raw_query = query.split("User: ")[-1] if "User: " in query else query
         
         # Check if the API key is placeholder
         if settings.ANTHROPIC_API_KEY == "sk-ant-your-key-here" or not settings.ANTHROPIC_API_KEY:
             log.info("Placeholder API Key detected. Using offline fallback response stream.")
-            fallback_text = generate_offline_fallback(query)
+            fallback_text = generate_offline_fallback(raw_query)
             # Stream chunk by chunk to simulate AI writing effect
             chunk_size = 8
             for i in range(0, len(fallback_text), chunk_size):
@@ -167,8 +168,9 @@ class ClaudeAnalystClient:
 
     async def get_full_response(self, messages: list, system_prompt: str, session_id: str) -> ParsedAnalystResponse:
         query = messages[-1]["content"] if messages else ""
+        raw_query = query.split("User: ")[-1] if "User: " in query else query
         if settings.ANTHROPIC_API_KEY == "sk-ant-your-key-here" or not settings.ANTHROPIC_API_KEY:
-            raw_text = generate_offline_fallback(query)
+            raw_text = generate_offline_fallback(raw_query)
             parsed = self.parser.parse(raw_text)
             parsed.input_tokens = 100
             parsed.output_tokens = 500
@@ -188,7 +190,7 @@ class ClaudeAnalystClient:
             parsed.output_tokens = response.usage.output_tokens
             return parsed
         except Exception:
-            raw_text = generate_offline_fallback(query)
+            raw_text = generate_offline_fallback(raw_query)
             parsed = self.parser.parse(raw_text)
             parsed.input_tokens = 100
             parsed.output_tokens = 500
