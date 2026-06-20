@@ -10,6 +10,7 @@ from app.core.context_builder import ContextBuilder
 from app.core.intent_classifier import IntentClassifier
 from app.core.prompt_engine import PromptEngine
 from app.core.response_parser import ResponseParser
+from app.core.rag import rag_engine, PromptInjectionError
 from app.models.chat import (
     ChatRequest, ChatResponse, StreamStartEvent, StreamDoneEvent, MessageRole,
 )
@@ -34,6 +35,13 @@ async def chat(request: ChatRequest, store: RedisSessionStore = Depends(get_sess
     if token_estimate > settings.MAX_TOKENS_PER_SESSION:
         raise HTTPException(429, "Session token budget exceeded. Please start a new session.")
 
+    # Secure RAG & Prompt Injection check
+    try:
+        rag_context = rag_engine.get_secure_context_block(request.message)
+    except PromptInjectionError as e:
+        log.warning("Chat prompt injection blocked", session_id=request.session_id)
+        raise HTTPException(status_code=400, detail="Security violation: Restricted input pattern detected.")
+
     intent = intent_classifier.classify(request.message)
     context = await context_builder.build_context(
         request.session_id,
@@ -41,6 +49,11 @@ async def chat(request: ChatRequest, store: RedisSessionStore = Depends(get_sess
         include_report=request.include_report_context,
     )
     built_prompt = prompt_engine.build_system_prompt(intent, context)
+    
+    # Inject secure RAG documentation context
+    if rag_context:
+        built_prompt.context_prefix = (built_prompt.context_prefix or "") + f"\n\n{rag_context}"
+
     messages = await manager.build_claude_messages(
         request.session_id, request.message, built_prompt.context_prefix,
     )
@@ -65,6 +78,14 @@ async def chat(request: ChatRequest, store: RedisSessionStore = Depends(get_sess
 @router.post("/stream")
 async def stream_chat(request: ChatRequest, store: RedisSessionStore = Depends(get_session_store)):
     manager = ConversationManager(store)
+    
+    # Secure RAG & Prompt Injection check
+    try:
+        rag_context = rag_engine.get_secure_context_block(request.message)
+    except PromptInjectionError as e:
+        log.warning("Stream prompt injection blocked", session_id=request.session_id)
+        raise HTTPException(status_code=400, detail="Security violation: Restricted input pattern detected.")
+
     intent = intent_classifier.classify(request.message)
     context = await context_builder.build_context(
         request.session_id,
@@ -72,6 +93,11 @@ async def stream_chat(request: ChatRequest, store: RedisSessionStore = Depends(g
         include_report=request.include_report_context,
     )
     built_prompt = prompt_engine.build_system_prompt(intent, context)
+    
+    # Inject secure RAG documentation context
+    if rag_context:
+        built_prompt.context_prefix = (built_prompt.context_prefix or "") + f"\n\n{rag_context}"
+
     messages = await manager.build_claude_messages(
         request.session_id, request.message, built_prompt.context_prefix,
     )
