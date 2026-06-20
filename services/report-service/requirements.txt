@@ -1,0 +1,6 @@
+fastapi>=0.109.2
+uvicorn[standard]>=0.27.0.post1
+pydantic>=2.6.1
+reportlab>=4.1.0
+httpx>=0.27.0
+structlog>=24.1.0

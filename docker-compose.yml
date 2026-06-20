@@ -1,0 +1,164 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - POSTGRES_URL=postgresql+asyncpg://user:password@postgres:5432/quantumshield
+      - JWT_SECRET=secret
+      - JWT_REFRESH_SECRET=refresh_secret
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - qs-network
+
+  quantum-attack-service:
+    build:
+      context: ./services/quantum-attack-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - REDIS_URL=redis://redis:6379/1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      - redis
+    networks:
+      - qs-network
+
+  classical-crypto-service:
+    build:
+      context: ./services/classical-crypto-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    networks:
+      - qs-network
+
+  pqc-service:
+    build:
+      context: ./services/pqc-service
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    networks:
+      - qs-network
+
+  benchmark-service:
+    build:
+      context: ./services/benchmark-service
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    environment:
+      - REDIS_URL=redis://redis:6379/2
+    depends_on:
+      - redis
+    networks:
+      - qs-network
+
+  report-service:
+    build:
+      context: ./services/report-service
+      dockerfile: Dockerfile
+    ports:
+      - "8005:8005"
+    networks:
+      - qs-network
+
+  ai-service:
+    build:
+      context: ./services/ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8016:8006"
+    networks:
+      - qs-network
+
+  ai-analyst-service:
+    build:
+      context: ./services/ai-analyst-service
+      dockerfile: Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379/2
+      - QUANTUMSHIELD_INTERNAL_API=http://api-gateway:8000/v1
+      - SESSION_TTL_SECONDS=3600
+      - MAX_HISTORY_MESSAGES=20
+    depends_on:
+      - redis
+      - api-gateway
+    networks:
+      - qs-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - qs-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=quantumshield
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - qs-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - qs-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - api-gateway
+    networks:
+      - qs-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    networks:
+      - qs-network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - qs-network
+
+networks:
+  qs-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

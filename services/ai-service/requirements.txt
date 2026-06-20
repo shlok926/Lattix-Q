@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+structlog
+python-dotenv
+httpx
+# langchain  # For future expansion

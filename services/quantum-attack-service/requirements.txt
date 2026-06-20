@@ -1,0 +1,14 @@
+fastapi>=0.109.2
+uvicorn[standard]>=0.27.0.post1
+pydantic>=2.6.1
+pydantic-settings>=2.1.0
+qiskit>=1.0.0
+qiskit-aer>=0.14.0
+celery>=5.3.6
+redis>=5.0.1
+sqlalchemy[asyncio]>=2.0.25
+asyncpg>=0.29.0
+numpy>=1.26.4
+scipy>=1.12.0
+sympy>=1.12
+structlog>=24.1.0
