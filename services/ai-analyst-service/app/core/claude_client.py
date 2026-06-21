@@ -86,14 +86,14 @@ def generate_offline_fallback(query: str) -> str:
         matches = rag_engine.search(query, k=1)
         if matches:
             chunk, score = matches[0]
-            if score > 0.12:
+            if score > 0.08:
                 log.info("Offline fallback matched local RAG database", score=score)
                 return format_rag_match(chunk["text"])
     except Exception as e:
         log.error("Failed to perform offline RAG search", error=str(e))
     
     # 1. Shor's / RSA / ECC Attack
-    if "shor" in query_lower or "rsa" in query_lower or "ecc" in query_lower or "break" in query_lower:
+    if "shor" in query_lower or "rsa" in query_lower or "ecc" in query_lower or "break" in query_lower or "qubit" in query_lower:
         return """<risk_level>CRITICAL</risk_level>
 <confidence>HIGH</confidence>
 <affects_algorithms>RSA-2048, ECC-256, ECDH</affects_algorithms>
@@ -117,7 +117,94 @@ Shor's algorithm, when executed on a sufficiently powerful Cryptanalytically Rel
 * Ensure symmetric block sizes are set to **AES-256** to prevent Grover's algorithm search space reduction.
 """
 
-    # 2. Migration Guide
+    # 2. ML-KEM / Lattice / Key Encapsulation
+    elif "kem" in query_lower or "kyber" in query_lower or "ml-kem" in query_lower or "lattice" in query_lower:
+        return """<risk_level>SAFE</risk_level>
+<confidence>HIGH</confidence>
+<affects_algorithms>ML-KEM-768, ML-KEM-1024</affects_algorithms>
+<next_steps>
+  <step>Configure ML-KEM-768 as the baseline algorithm for web-facing key exchange.</step>
+  <step>Implement a hybrid key exchange (e.g., X25519 + ML-KEM-768) to satisfy both FIPS requirements and legacy systems.</step>
+</next_steps>
+
+### Lattice-Based Key Encapsulation (ML-KEM)
+
+ML-KEM (based on CRYSTALS-Kyber and standardized under FIPS 203) is the primary lattice-based key encapsulation mechanism.
+
+#### Technical Highlights:
+* **Mathematical Basis**: Relies on the hardness of the Module Learning With Errors (M-LWE) problem in algebraic lattices.
+* **Performance**: Operations are highly optimized (often using Number Theoretic Transform / NTT), completing in under a millisecond on modern CPUs.
+* **Key & Ciphertext Sizes**: Public keys and ciphertexts are roughly 1 KB, requiring larger network buffers compared to classical 32-byte ECDH keys.
+"""
+
+    # 3. Digital Signatures / ML-DSA / Dilithium / SLH-DSA / Falcon
+    elif "signature" in query_lower or "dsa" in query_lower or "dilithium" in query_lower or "ml-dsa" in query_lower or "falcon" in query_lower:
+        return """<risk_level>SAFE</risk_level>
+<confidence>HIGH</confidence>
+<affects_algorithms>ML-DSA-65, SLH-DSA, Falcon</affects_algorithms>
+<next_steps>
+  <step>Use ML-DSA-65 as the primary digital signature algorithm for code signing and document verification.</step>
+  <step>Adopt Falcon for environments where network packet size constraint is a strict bottleneck.</step>
+</next_steps>
+
+### Post-Quantum Digital Signatures
+
+NIST FIPS 204 and FIPS 205 establish standard algorithms for post-quantum digital signatures:
+
+#### 1. ML-DSA (CRYSTALS-Dilithium):
+* **Security Basis**: Module Short Integer Solution (M-SIS) and M-LWE.
+* **Characteristics**: Offers excellent signing and verification performance. Highly recommended as the default signature option.
+
+#### 2. SLH-DSA (SPHINCS+):
+* **Security Basis**: Strictly hash-based tree construction.
+* **Characteristics**: Large signature sizes (~30-40 KB) and slower performance, but relies on conservative security assumptions without lattice mathematics.
+
+#### 3. Falcon:
+* **Security Basis**: SIS problem over NTRU lattices.
+* **Characteristics**: Small public keys and signatures, extremely fast verification, but requires floating-point arithmetic.
+"""
+
+    # 4. Stateful Signatures / XMSS / LMS
+    elif "stateful" in query_lower or "xmss" in query_lower or "lms" in query_lower:
+        return """<risk_level>MEDIUM</risk_level>
+<confidence>HIGH</confidence>
+<affects_algorithms>XMSS, LMS</affects_algorithms>
+<next_steps>
+  <step>Implement strict database state locking to prevent index reuse during signature generation.</step>
+  <step>Use stateful signatures only for firmware updates, code signing, or secure boot environments.</step>
+</next_steps>
+
+### Stateful Hash-Based Signatures (XMSS & LMS)
+
+Stateful signatures (standardized in NIST SP 800-208) are highly secure hash-based signature schemes suitable for specific static targets.
+
+#### Core Concepts:
+* **State Index Dependency**: Unlike typical signatures, these systems maintain a strict internal "state" representing the used leaves of a Merkle tree. 
+* **The OTS Danger**: Reusing a leaf index for two different signatures compromises the one-time signature (OTS), enabling attackers to reconstruct private keys and forge signatures.
+* **Ideal Deployments**: Firmware signing and secure boot where signatures are infrequent and state synchronization is tightly controlled.
+"""
+
+    # 5. Code Scanning / Audits / Vulnerability Scan / CVE
+    elif "scan" in query_lower or "audit" in query_lower or "vulnerability" in query_lower or "cve" in query_lower or "tool" in query_lower:
+        return """<risk_level>HIGH</risk_level>
+<confidence>HIGH</confidence>
+<affects_algorithms>RSA-2048, ECC-256, AES-128</affects_algorithms>
+<next_steps>
+  <step>Configure automated code scanning hooks in the CI/CD pipeline to detect legacy algorithms.</step>
+  <step>Scan project lockfiles to detect outdated versions of cryptographic dependencies (e.g., OpenSSL < 3.0).</step>
+</next_steps>
+
+### Cryptographic Code Scanning & Software Auditing
+
+Identifying legacy and quantum-vulnerable cryptography is a critical prerequisite for PQC migration.
+
+#### Key Areas of Focus:
+* **Static Pattern Detection**: Scanning code for API calls initiating legacy keys (such as RSA < 3072 bits or SHA-1 hashes).
+* **Dependency Lockfile Auditing**: Resolving exact pinned dependency versions (e.g., `package-lock.json`) and comparing them against known vulnerability (CVE) databases.
+* **Cryptographic Agility Audit**: Refactoring codebases to isolate cryptographic logic behind centralized APIs rather than hardcoding algorithm parameters in business logic.
+"""
+
+    # 6. Migration Guide
     elif "migrate" in query_lower or "how to" in query_lower or "transition" in query_lower:
         return """<risk_level>HIGH</risk_level>
 <confidence>HIGH</confidence>
@@ -143,8 +230,8 @@ Transitioning an enterprise infrastructure to quantum-safe state requires a syst
 * Once standards settle, disable classical key exchanges and move to pure post-quantum algorithms like **ML-KEM** and **ML-DSA** as standardized in FIPS 203 and FIPS 204.
 """
 
-    # 3. FALCON vs Dilithium or compare algorithms
-    elif "compare" in query_lower or "falcon" in query_lower or "dilithium" in query_lower:
+    # 7. FALCON vs Dilithium or compare algorithms
+    elif "compare" in query_lower or "versus" in query_lower or "vs" in query_lower:
         return """<risk_level>LOW</risk_level>
 <confidence>HIGH</confidence>
 <affects_algorithms>CRYSTALS-Dilithium3, Falcon-512, ML-DSA</affects_algorithms>
@@ -170,7 +257,7 @@ NIST has standardized two primary lattice-based digital signature schemes:
 * **Falcon** is ideal for network hardware, TLS packets, and constrained systems where signature bandwidth is a strict bottleneck.
 """
 
-    # 4. Default / General Questions
+    # 8. Default / General Questions
     else:
         return """<risk_level>MEDIUM</risk_level>
 <confidence>HIGH</confidence>
