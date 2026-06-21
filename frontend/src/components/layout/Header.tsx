@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, HelpCircle, Search, X, CornerDownLeft, Sparkles, Zap, Terminal, FlaskConical, Layers, BarChart3, ArrowLeftRight, Globe, Database, FileText, Settings, LogOut, ShieldAlert, CheckCircle, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNotificationStore } from '../../store/notificationStore';
 
 export const Header: React.FC = () => {
   const location = useLocation();
@@ -20,13 +21,7 @@ export const Header: React.FC = () => {
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: 'alert', title: 'Weak Key Found', desc: 'Server-4 uses legacy RSA-1024 parameters.', time: '10m ago', read: false },
-    { id: 2, type: 'info', title: 'FIPS 203 Standardized', desc: 'ML-KEM-768 is officially standard.', time: '2h ago', read: false },
-    { id: 3, type: 'success', title: 'Code Scan Complete', desc: 'Zero hardcoded keys in main-branch.', time: '1d ago', read: true },
-  ]);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const { notifications, unreadCount, markAllAsRead, markAsRead } = useNotificationStore();
 
   const getTitle = (path: string) => {
     switch (path) {
@@ -107,9 +102,7 @@ export const Header: React.FC = () => {
     setSearchQuery('');
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
+
 
   return (
     <header className="h-[56px] bg-[#080C14] border-b border-[#1E2D45] flex items-center justify-between px-6 select-none shrink-0 relative z-40">
@@ -163,9 +156,19 @@ export const Header: React.FC = () => {
               </div>
               <div className="divide-y divide-[#1E2D45]/50 max-h-[250px] overflow-y-auto">
                 {notifications.map((n) => (
-                  <div key={n.id} className={`p-3 flex items-start gap-3 hover:bg-[#121B2E]/60 transition-colors ${!n.read ? 'bg-[#0D1421]/30' : ''}`}>
+                  <div 
+                    key={n.id} 
+                    onClick={() => {
+                      markAsRead(n.id);
+                      if (n.route) {
+                        handleNavigate(n.route);
+                      }
+                    }}
+                    className={`p-3 flex items-start gap-3 hover:bg-[#121B2E]/60 cursor-pointer transition-colors ${!n.read ? 'bg-[#0D1421]/30' : ''}`}
+                  >
                     <div className="mt-0.5 shrink-0">
                       {n.type === 'alert' && <ShieldAlert size={14} className="text-[#EF4444]" />}
+                      {n.type === 'warning' && <ShieldAlert size={14} className="text-[#F59E0B]" />}
                       {n.type === 'success' && <CheckCircle size={14} className="text-[#10B981]" />}
                       {n.type === 'info' && <Info size={14} className="text-[#00C4E8]" />}
                     </div>
