@@ -1,6 +1,7 @@
 import anthropic
 import structlog
 import asyncio
+import re
 from typing import AsyncIterator, Optional
 from app.config import settings
 from app.core.response_parser import ResponseParser, ParsedAnalystResponse
@@ -15,6 +16,67 @@ def get_claude_client() -> anthropic.AsyncAnthropic:
         _client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
     return _client
 
+def split_into_sentences(text: str) -> list[str]:
+    sentence_end = re.compile(r'(?<!\b[eE]\.[gG])(?<!\b[iI]\.[eE])(?<!\b[vV]\.[sS])(?<!\b[aA]\.[kK])(?<!\b\d)(?<!\b[A-Z])\.\s+')
+    raw_sentences = sentence_end.split(text)
+    sentences = []
+    for s in raw_sentences:
+        s = s.strip()
+        if s:
+            if not s.endswith('.') and not s.endswith('?') and not s.endswith('!'):
+                s += '.'
+            sentences.append(s)
+    return sentences
+
+def format_answer_body(text: str) -> str:
+    sentences = split_into_sentences(text)
+    if len(sentences) == 0:
+        return text
+    if len(sentences) == 1:
+        return sentences[0]
+    if len(sentences) == 3:
+        return (
+            "### Analysis & Key Insights\n\n"
+            f"* **Core Concept**: {sentences[0]}\n"
+            f"* **Technical Details**: {sentences[1]}\n"
+            f"* **Operational Guidelines**: {sentences[2]}"
+        )
+    if len(sentences) == 2:
+        return (
+            "### Analysis & Key Insights\n\n"
+            f"* **Core Concept**: {sentences[0]}\n"
+            f"* **Operational Guidelines**: {sentences[1]}"
+        )
+    formatted = f"### Analysis & Key Insights\n\n{sentences[0]}\n\n"
+    for i, s in enumerate(sentences[1:], start=1):
+        formatted += f"* **Key Point {i}**: {s}\n"
+    return formatted.strip()
+
+def format_rag_match(text: str) -> str:
+    # 1. Extract XML tags
+    idx = text.find("<risk_level>")
+    if idx != -1:
+        main_content = text[:idx].strip()
+        xml_content = text[idx:].strip()
+    else:
+        main_content = text.strip()
+        xml_content = ""
+
+    # 2. Extract answer part (after Q: ... A:)
+    match = re.search(r'\s+A:\s*|\n+A:\s*', main_content)
+    if match:
+        answer_body = main_content[match.end():].strip()
+    else:
+        answer_body = main_content
+
+    # 3. Format answer into bullet points
+    formatted_answer = format_answer_body(answer_body)
+
+    # 4. Combine
+    if xml_content:
+        return f"{xml_content}\n\n{formatted_answer}"
+    return formatted_answer
+
 def generate_offline_fallback(query: str) -> str:
     query_lower = query.lower()
     
@@ -26,7 +88,7 @@ def generate_offline_fallback(query: str) -> str:
             chunk, score = matches[0]
             if score > 0.12:
                 log.info("Offline fallback matched local RAG database", score=score)
-                return chunk["text"]
+                return format_rag_match(chunk["text"])
     except Exception as e:
         log.error("Failed to perform offline RAG search", error=str(e))
     
