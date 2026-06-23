@@ -554,6 +554,86 @@ export const QuantumAttackLab: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Shor's Circuit Preview */}
+                <div className="space-y-2 bg-[#080C14] border border-[#1E2D45]/40 rounded-xl p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-[#475569] uppercase font-bold tracking-wider block">Shor Factorization Circuit Preview</span>
+                    <span className="text-[9px] text-[#00C4E8] font-mono">Quantum Fourier Transform Phase</span>
+                  </div>
+                  <div className="h-[150px] w-full border border-white/[0.02] bg-black/20 rounded p-1.5 overflow-hidden">
+                    <svg width="100%" height="100%" viewBox="0 0 450 140" className="select-none">
+                      {/* Grid Lines (Qubits) */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          {/* Qubit label */}
+                          <text x="12" y={y + 3} fill="#94A3B8" className="text-[9px] font-mono text-right" textAnchor="end">|q{idx}⟩</text>
+                          {/* Qubit wire */}
+                          <line x1="18" y1={y} x2="430" y2={y} stroke="#1E2D45" strokeWidth="1" strokeDasharray={idx > 3 ? "2 2" : "0"} />
+                        </g>
+                      ))}
+                      
+                      {/* Classical double-wire */}
+                      <text x="12" y="128" fill="#475569" className="text-[9px] font-mono text-right" textAnchor="end">c</text>
+                      <line x1="18" y1="125" x2="430" y2="125" stroke="#475569" strokeWidth="0.75" />
+                      <line x1="18" y1="127" x2="430" y2="127" stroke="#475569" strokeWidth="0.75" />
+                      
+                      {/* Column 1: Hadamard State Prep */}
+                      <g>
+                        <rect x="36" y="11" width="14" height="14" rx="2" fill="#00C4E8" stroke="#0096B4" strokeWidth="1" />
+                        <text x="43" y="21" textAnchor="middle" fill="#080C14" className="text-[9px] font-bold font-mono">H</text>
+                        
+                        <rect x="36" y="29" width="14" height="14" rx="2" fill="#00C4E8" stroke="#0096B4" strokeWidth="1" />
+                        <text x="43" y="39" textAnchor="middle" fill="#080C14" className="text-[9px] font-bold font-mono">H</text>
+                      </g>
+
+                      {/* Column 2: Controlled Rotation */}
+                      <g>
+                        <line x1="75" y1="36" x2="75" y2="90" stroke="#F59E0B" strokeWidth="1.2" />
+                        <circle cx="75" cy="36" r="3.5" fill="#F59E0B" />
+                        {/* Target Cross */}
+                        <circle cx="75" cy="90" r="6" fill="#0D1421" stroke="#F59E0B" strokeWidth="1.2" />
+                        <line x1="71" y1="90" x2="79" y2="90" stroke="#F59E0B" strokeWidth="1" />
+                        <line x1="75" y1="86" x2="75" y2="94" stroke="#F59E0B" strokeWidth="1" />
+                      </g>
+
+                      {/* Column 3: Modular Exponentiation Box */}
+                      <g>
+                        <rect x="110" y="10" width="100" height="70" rx="4" fill="rgba(239, 68, 68, 0.08)" stroke="#EF4444" strokeWidth="1.2" />
+                        <rect x="110" y="10" width="100" height="18" rx="4" fill="#EF4444" fillOpacity="0.1" />
+                        <text x="160" y="22" textAnchor="middle" fill="#EF4444" className="text-[8px] font-bold font-mono">ModExp (U^a mod N)</text>
+                        <text x="160" y="48" textAnchor="middle" fill="#94A3B8" className="text-[8px] font-mono">Logical Cascade</text>
+                        <text x="160" y="60" textAnchor="middle" fill="#475569" className="text-[7.5px] font-mono">O(L³) Complexity</text>
+                      </g>
+
+                      {/* Column 4: Inverse QFT block */}
+                      <g>
+                        <rect x="235" y="10" width="70" height="106" rx="4" fill="rgba(147, 51, 234, 0.08)" stroke="#9333EA" strokeWidth="1.2" />
+                        <rect x="235" y="10" width="70" height="18" rx="4" fill="#9333EA" fillOpacity="0.1" />
+                        <text x="270" y="22" textAnchor="middle" fill="#A855F7" className="text-[9px] font-bold font-mono">QFT†</text>
+                        <text x="270" y="62" textAnchor="middle" fill="#94A3B8" className="text-[8px] font-mono">Inv Fourier</text>
+                        <text x="270" y="74" textAnchor="middle" fill="#94A3B8" className="text-[8px] font-mono">Transform</text>
+                        <text x="270" y="94" textAnchor="middle" fill="#475569" className="text-[7.5px] font-mono">y₀...y₅ readout</text>
+                      </g>
+
+                      {/* Column 5: Measurement Gates */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          <rect x="330" y={y - 7} width="16" height="14" rx="2" fill="#1E2D45" stroke="#94A3B8" strokeWidth="1" />
+                          <path d={`M${332} ${y + 4} A5 5 0 0 1 ${344} ${y + 4}`} fill="none" stroke="#94A3B8" strokeWidth="0.8" />
+                          <line x1="338" y1={y + 4} x2="342" y2={y - 3} stroke="#00C4E8" strokeWidth="1" />
+                          {/* Classical output lines */}
+                          <line x1="346" y1={y} x2="390" y2={y} stroke="#475569" strokeWidth="0.75" />
+                          <line x1="390" y1={y} x2="390" y2="125" stroke="#475569" strokeWidth="0.75" />
+                          <circle cx="390" cy="125" r="1.5" fill="#475569" />
+                        </g>
+                      ))}
+                    </svg>
+                  </div>
+                  <span className="text-[9px] text-[#475569] block font-mono">
+                    Representative Shor circuit trace. Active qubits: {shorTarget === 'RSA-1024' ? '2,048' : shorTarget === 'RSA-2048' ? '4,096' : '8,192'} logical registers.
+                  </span>
+                </div>
+
                 {/* Cryptographic Break Alert */}
                 <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex gap-3">
                   <AlertTriangle className="text-red-400 shrink-0 mt-0.5" size={18} />
@@ -772,24 +852,86 @@ export const QuantumAttackLab: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Circuit schematic */}
+                {/* Grover Circuit Preview */}
                 <div className="space-y-2 bg-[#080C14] border border-[#1E2D45]/40 rounded-xl p-4">
-                  <span className="text-[10px] text-[#475569] uppercase font-bold tracking-wider block">Grover Diffusion Circuit Preview</span>
-                  <div className="h-[90px] w-full border border-white/[0.02] bg-black/20 rounded p-1">
-                    <svg width="100%" height="100%" viewBox="0 0 450 75">
-                      {[10, 20, 30, 40, 50, 60, 70].map((y, idx) => (
-                        <line key={idx} x1="10" y1={y} x2="440" y2={y} stroke="#1E2D45" strokeWidth="1" />
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] text-[#475569] uppercase font-bold tracking-wider block">Grover Amplitude Amplification Circuit Preview</span>
+                    <span className="text-[9px] text-[#00C4E8] font-mono">Symmetric Oracle Phase</span>
+                  </div>
+                  <div className="h-[150px] w-full border border-white/[0.02] bg-black/20 rounded p-1.5 overflow-hidden">
+                    <svg width="100%" height="100%" viewBox="0 0 450 140" className="select-none">
+                      {/* Grid Lines (Qubits) */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          {/* Qubit label */}
+                          <text x="12" y={y + 3} fill="#94A3B8" className="text-[9px] font-mono text-right" textAnchor="end">|q{idx}⟩</text>
+                          {/* Qubit wire */}
+                          <line x1="18" y1={y} x2="430" y2={y} stroke="#1E2D45" strokeWidth="1" />
+                        </g>
                       ))}
-                      <rect x="70" y="5" width="40" height="50" fill="#EF4444" rx="3" />
-                      <text x="90" y="33" textAnchor="middle" fill="white" className="text-[8px] font-bold">Oracle</text>
-                      <rect x="150" y="5" width="15" height="10" fill="#00C4E8" rx="2" />
-                      <text x="157" y="13" textAnchor="middle" fill="#080C14" className="text-[8px] font-bold">H</text>
-                      <rect x="210" y="5" width="50" height="50" fill="#A855F7" rx="3" />
-                      <text x="235" y="33" textAnchor="middle" fill="white" className="text-[8px] font-bold">Diffusion</text>
-                      <rect x="310" y="5" width="15" height="10" fill="#00C4E8" rx="2" />
-                      <text x="317" y="13" textAnchor="middle" fill="#080C14" className="text-[8px] font-bold">H</text>
+                      
+                      {/* Classical double-wire */}
+                      <text x="12" y="128" fill="#475569" className="text-[9px] font-mono text-right" textAnchor="end">c</text>
+                      <line x1="18" y1="125" x2="430" y2="125" stroke="#475569" strokeWidth="0.75" />
+                      <line x1="18" y1="127" x2="430" y2="127" stroke="#475569" strokeWidth="0.75" />
+                      
+                      {/* Column 1: Hadamard prep on all wires */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          <rect x="30" y={y - 7} width="14" height="14" rx="2" fill="#00C4E8" stroke="#0096B4" strokeWidth="1" />
+                          <text x="37" y={y + 3} textAnchor="middle" fill="#080C14" className="text-[9px] font-bold font-mono">H</text>
+                        </g>
+                      ))}
+
+                      {/* Column 2: Oracle Box */}
+                      <g>
+                        <rect x="75" y="10" width="85" height="106" rx="4" fill="rgba(239, 68, 68, 0.08)" stroke="#EF4444" strokeWidth="1.2" />
+                        <rect x="75" y="10" width="85" height="18" rx="4" fill="#EF4444" fillOpacity="0.1" />
+                        <text x="117.5" y="22" textAnchor="middle" fill="#EF4444" className="text-[9px] font-bold font-mono">Oracle (U_w)</text>
+                        <text x="117.5" y="62" textAnchor="middle" fill="#94A3B8" className="text-[8px] font-mono">Phase Inversion</text>
+                        <text x="117.5" y="74" textAnchor="middle" fill="#475569" className="text-[7.5px] font-mono">f(x) = 1 target</text>
+                      </g>
+
+                      {/* Column 3: Hadamard diffusion prep */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          <rect x="190" y={y - 7} width="14" height="14" rx="2" fill="#00C4E8" stroke="#0096B4" strokeWidth="1" />
+                          <text x="197" y={y + 3} textAnchor="middle" fill="#080C14" className="text-[9px] font-bold font-mono">H</text>
+                        </g>
+                      ))}
+
+                      {/* Column 4: Diffusion Operator Box */}
+                      <g>
+                        <rect x="235" y="10" width="95" height="106" rx="4" fill="rgba(147, 51, 234, 0.08)" stroke="#9333EA" strokeWidth="1.2" />
+                        <rect x="235" y="10" width="95" height="18" rx="4" fill="#9333EA" fillOpacity="0.1" />
+                        <text x="282.5" y="22" textAnchor="middle" fill="#A855F7" className="text-[9px] font-bold font-mono">Diffusion (U_s)</text>
+                        <text x="282.5" y="62" textAnchor="middle" fill="#94A3B8" className="text-[8px] font-mono">Mean Inversion</text>
+                        <text x="282.5" y="74" textAnchor="middle" fill="#475569" className="text-[7.5px] font-mono">2|s⟩⟨s| - I</text>
+                      </g>
+
+                      {/* Column 5: Hadamard post diffusion */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          <rect x="360" y={y - 7} width="14" height="14" rx="2" fill="#00C4E8" stroke="#0096B4" strokeWidth="1" />
+                          <text x="367" y={y + 3} textAnchor="middle" fill="#080C14" className="text-[9px] font-bold font-mono">H</text>
+                        </g>
+                      ))}
+
+                      {/* Column 6: Measurement Gates */}
+                      {[18, 36, 54, 72, 90, 108].map((y, idx) => (
+                        <g key={idx}>
+                          <rect x="400" y={y - 7} width="16" height="14" rx="2" fill="#1E2D45" stroke="#94A3B8" strokeWidth="1" />
+                          <path d={`M${402} ${y + 4} A5 5 0 0 1 ${414} ${y + 4}`} fill="none" stroke="#94A3B8" strokeWidth="0.8" />
+                          <line x1="408" y1={y + 4} x2="412" y2={y - 3} stroke="#00C4E8" strokeWidth="1" />
+                          {/* Classical output lines */}
+                          <line x1="416" y1={y} x2="430" y2={y} stroke="#475569" strokeWidth="0.75" />
+                        </g>
+                      ))}
                     </svg>
                   </div>
+                  <span className="text-[9px] text-[#475569] block font-mono">
+                    Simplified amplitude amplification circuit representation ({groverTarget} simulation).
+                  </span>
                 </div>
               </div>
             )}
