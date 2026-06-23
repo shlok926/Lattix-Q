@@ -55,6 +55,7 @@ export const QuantumAttackLab: React.FC = () => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [hasRunShor, setHasRunShor] = useState<boolean>(true);
   const [hasRunGrover, setHasRunGrover] = useState<boolean>(true);
+  const [exportDropdownOpen, setExportDropdownOpen] = useState<'shor' | 'grover' | null>(null);
 
   // Auto-recalculate Shor's parameters on changes
   useEffect(() => {
@@ -195,49 +196,114 @@ export const QuantumAttackLab: React.FC = () => {
   };
 
   // Export Results
-  const exportSimulationData = () => {
+  const exportSimulationData = (format: 'json' | 'txt') => {
     const date = new Date().toLocaleString();
     let dataStr = '';
-    
-    if (activeTab === 'shors') {
-      const shMetrics = getShorMetrics();
-      const payload = {
-        title: "Quantum Attack Lab - Shor's Algorithm Simulation Report",
-        timestamp: date,
-        target: shorTarget,
-        logical_qubits_estimated: shMetrics.qubits,
-        physical_qubits_required: shMetrics.physicalQubits,
-        circuit_depth: shMetrics.circuitDepth,
-        gate_fidelity_required: shMetrics.gateFidelity,
-        coherence_time_needed: shMetrics.coherenceTime,
-        classical_factoring_time: shMetrics.classicalTime,
-        quantum_factoring_time: shMetrics.quantumTime,
-        nisq_noise_model_applied: nisqEnabled,
-        modeled_error_rate: nisqEnabled ? `${(nisqErrorRate * 100).toFixed(2)}%` : "0.00%",
-        security_status: "CRITICAL COMPROMISE RISK"
-      };
-      dataStr = JSON.stringify(payload, null, 2);
+    let mimeType = 'application/json';
+    let fileExtension = 'json';
+
+    if (format === 'json') {
+      if (activeTab === 'shors') {
+        const shMetrics = getShorMetrics();
+        const payload = {
+          title: "Quantum Attack Lab - Shor's Algorithm Simulation Report",
+          timestamp: date,
+          target: shorTarget,
+          logical_qubits_estimated: shMetrics.qubits,
+          physical_qubits_required: shMetrics.physicalQubits,
+          circuit_depth: shMetrics.circuitDepth,
+          gate_fidelity_required: shMetrics.gateFidelity,
+          coherence_time_needed: shMetrics.coherenceTime,
+          classical_factoring_time: shMetrics.classicalTime,
+          quantum_factoring_time: shMetrics.quantumTime,
+          nisq_noise_model_applied: nisqEnabled,
+          modeled_error_rate: nisqEnabled ? `${(nisqErrorRate * 100).toFixed(2)}%` : "0.00%",
+          security_status: "CRITICAL COMPROMISE RISK"
+        };
+        dataStr = JSON.stringify(payload, null, 2);
+      } else {
+        const grMetrics = getGroverMetrics();
+        const payload = {
+          title: "Quantum Attack Lab - Grover's Search Simulation Report",
+          timestamp: date,
+          target: groverTarget,
+          logical_qubits_estimated: grMetrics.qubits,
+          quantum_iterations_required: grMetrics.iterations,
+          effective_key_security: grMetrics.effectiveSecurity,
+          status: grMetrics.status,
+          circuit_depth: grMetrics.depth,
+          security_status: grMetrics.status === 'SECURE' ? "COMPLIANT: Post-Quantum Equivalent" : "VULNERABLE: Key Entropy Halved"
+        };
+        dataStr = JSON.stringify(payload, null, 2);
+      }
     } else {
-      const grMetrics = getGroverMetrics();
-      const payload = {
-        title: "Quantum Attack Lab - Grover's Search Simulation Report",
-        timestamp: date,
-        target: groverTarget,
-        logical_qubits_estimated: grMetrics.qubits,
-        quantum_iterations_required: grMetrics.iterations,
-        effective_key_security: grMetrics.effectiveSecurity,
-        status: grMetrics.status,
-        circuit_depth: grMetrics.depth,
-        security_status: grMetrics.status === 'SECURE' ? "COMPLIANT: Post-Quantum Equivalent" : "VULNERABLE: Key Entropy Halved"
-      };
-      dataStr = JSON.stringify(payload, null, 2);
+      mimeType = 'text/plain';
+      fileExtension = 'txt';
+      if (activeTab === 'shors') {
+        const shMetrics = getShorMetrics();
+        dataStr = `============================================================
+           LATTIX - Q: QUANTUM ATTACK SIMULATION REPORT
+============================================================
+Generated: ${date}
+Methodology: Shor's Factorization Algorithm
+Target Cryptosystem: ${shorTarget}
+Security Assessment: CRITICAL COMPROMISE RISK
+------------------------------------------------------------
+[SIMULATION PARAMETERS]
+- Target: ${shorTarget}
+- Logical Qubits (Estimated): ${shMetrics.qubits.toLocaleString()}
+- Circuit Depth (Gates): ${shMetrics.circuitDepth.toLocaleString()}
+- NISQ Noise Model: ${nisqEnabled ? 'ENABLED' : 'DISABLED'}
+- Modeled Gate Error Rate: ${nisqEnabled ? `${(nisqErrorRate * 100).toFixed(2)}%` : "0.00%"}
+- Physical Qubits Required: ${shMetrics.physicalQubits.toLocaleString()}
+
+[SIMULATION METRICS]
+- Gate Fidelity Required: ${shMetrics.gateFidelity}
+- Coherence Time Required: ${shMetrics.coherenceTime}
+- Classical GNFS Factoring Time: ${shMetrics.classicalTime}
+- Quantum Factoring Time: ${shMetrics.quantumTime}
+
+[CRYPTOGRAPHIC VERDICT]
+${shorTarget} is mathematically vulnerable to Shor's Factorization. 
+A fault-tolerant quantum computer running with ${shMetrics.qubits.toLocaleString()} logical 
+qubits can resolve the private key parameters in ${shMetrics.quantumTime}.
+Legacy public key infrastructures must migrate to NIST-approved
+Post-Quantum algorithms (e.g., ML-KEM / Kyber, ML-DSA / Dilithium).
+============================================================`;
+      } else {
+        const grMetrics = getGroverMetrics();
+        dataStr = `============================================================
+           LATTIX - Q: QUANTUM ATTACK SIMULATION REPORT
+============================================================
+Generated: ${date}
+Methodology: Grover's Search Amplitude Amplification
+Target Cipher: ${groverTarget}
+Security Assessment: ${grMetrics.status === 'SECURE' ? 'COMPLIANT (SAFE)' : 'VULNERABLE (SECURITY HALVED)'}
+------------------------------------------------------------
+[SIMULATION PARAMETERS]
+- Target symmetric cipher: ${groverTarget}
+- Logical Qubits Required: ${grMetrics.qubits}
+- Oracle Circuit Depth: ${grMetrics.depth.toLocaleString()} gates
+
+[SIMULATION METRICS]
+- Quantum Search Iterations: ${grMetrics.iterations}
+- Effective Key Security: ${grMetrics.effectiveSecurity}
+- Evaluation Status: ${grMetrics.status}
+
+[CRYPTOGRAPHIC VERDICT]
+${groverTarget === 'AES-128' 
+  ? "AES-128 is downgraded to 64-bit effective security by Grover's search. This is within range of massive parallel pre-computation attacks. Upgrade to AES-256 immediately."
+  : "AES-256's effective security remains 128-bit under Grover's attack. 128-bits of quantum entropy is secure against any theoretical physical quantum processor."
+}
+============================================================`;
+      }
     }
 
-    const blob = new Blob([dataStr], { type: 'application/json' });
+    const blob = new Blob([dataStr], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `quantum_attack_lab_${activeTab}_report.json`;
+    link.download = `quantum_attack_lab_${activeTab}_report.${fileExtension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -427,14 +493,38 @@ export const QuantumAttackLab: React.FC = () => {
                   <Play size={14} fill="currentColor" />
                   Run Simulation
                 </button>
-                <button
-                  onClick={exportSimulationData}
-                  disabled={isSimulating || !hasRunShor}
-                  className="px-4 bg-[#080C14] hover:bg-[#1E2D45] border border-[#1E2D45] text-slate-300 font-semibold rounded-md text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-                >
-                  <Download size={14} />
-                  Export
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => setExportDropdownOpen(exportDropdownOpen === 'shor' ? null : 'shor')}
+                    disabled={isSimulating || !hasRunShor}
+                    className="px-4 py-2.5 h-full bg-[#080C14] hover:bg-[#1E2D45] border border-[#1E2D45] text-slate-300 font-semibold rounded-md text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Download size={14} />
+                    Export
+                  </button>
+                  {exportDropdownOpen === 'shor' && (
+                    <div className="absolute right-0 bottom-12 w-44 bg-[#121B2E] border border-[#1E2D45] rounded-lg shadow-xl py-1.5 z-40 animate-fadeIn">
+                      <button
+                        onClick={() => {
+                          exportSimulationData('json');
+                          setExportDropdownOpen(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-[11px] text-[#94A3B8] hover:text-[#00C4E8] hover:bg-[#0D1421] transition font-semibold"
+                      >
+                        📥 Export JSON Data
+                      </button>
+                      <button
+                        onClick={() => {
+                          exportSimulationData('txt');
+                          setExportDropdownOpen(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-[11px] text-[#94A3B8] hover:text-[#00C4E8] hover:bg-[#0D1421] transition font-semibold"
+                      >
+                        📄 Export Audit Report (TXT)
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -728,15 +818,39 @@ export const QuantumAttackLab: React.FC = () => {
                 <Play size={14} fill="currentColor" />
                 Run Simulation
               </button>
-              <button
-                onClick={exportSimulationData}
-                disabled={isSimulating || !hasRunGrover}
-                className="px-4 bg-[#080C14] hover:bg-[#1E2D45] border border-[#1E2D45] text-slate-300 font-semibold rounded-md text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-              >
-                <Download size={14} />
-                Export
-              </button>
-            </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setExportDropdownOpen(exportDropdownOpen === 'grover' ? null : 'grover')}
+                    disabled={isSimulating || !hasRunGrover}
+                    className="px-4 py-2.5 h-full bg-[#080C14] hover:bg-[#1E2D45] border border-[#1E2D45] text-slate-300 font-semibold rounded-md text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <Download size={14} />
+                    Export
+                  </button>
+                  {exportDropdownOpen === 'grover' && (
+                    <div className="absolute right-0 bottom-12 w-44 bg-[#121B2E] border border-[#1E2D45] rounded-lg shadow-xl py-1.5 z-40 animate-fadeIn">
+                      <button
+                        onClick={() => {
+                          exportSimulationData('json');
+                          setExportDropdownOpen(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-[11px] text-[#94A3B8] hover:text-[#00C4E8] hover:bg-[#0D1421] transition font-semibold"
+                      >
+                        📥 Export JSON Data
+                      </button>
+                      <button
+                        onClick={() => {
+                          exportSimulationData('txt');
+                          setExportDropdownOpen(null);
+                        }}
+                        className="w-full text-left px-3.5 py-2 text-[11px] text-[#94A3B8] hover:text-[#00C4E8] hover:bg-[#0D1421] transition font-semibold"
+                      >
+                        📄 Export Audit Report (TXT)
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
           </div>
 
           {/* Grover's Results (6 Columns) */}
