@@ -1,4 +1,5 @@
 import io
+import html
 from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
@@ -43,6 +44,7 @@ def section_title(text):
 
 # ── Cover (single Drawing — no unicode) ──────────────────────────────────────
 def make_cover(org, date):
+    org_clean = html.escape(str(org))
     h = 250
     d = Drawing(PW, h)
     d.add(Rect(0, 0, PW, h, fillColor=BG, strokeColor=None))
@@ -56,7 +58,7 @@ def make_cover(org, date):
     d.add(String(PW/2, cy-52,   "Post-Quantum Cryptographic Assessment Report",
                  fontName="Helvetica", fontSize=11, fillColor=colors.HexColor("#A78BFA"), textAnchor="middle"))
     d.add(Line(PW*0.2, cy-68, PW*0.8, cy-68, strokeColor=ACC, strokeWidth=0.8))
-    d.add(String(PW/2, cy-84,  f"Organization : {org}",
+    d.add(String(PW/2, cy-84,  f"Organization : {org_clean}",
                  fontName="Helvetica", fontSize=9, fillColor=MID, textAnchor="middle"))
     d.add(String(PW/2, cy-100, f"Report Date  : {date}",
                  fontName="Helvetica", fontSize=9, fillColor=MID, textAnchor="middle"))
@@ -159,12 +161,13 @@ def make_pie_chart(findings):
 
 # ── Finding cards ─────────────────────────────────────────────────────────────
 def make_finding(idx, f):
-    sev = f.get("risk", "Medium")
-    sc  = SEV.get(sev, BLU)
+    sev = html.escape(str(f.get("risk", "Medium")))
+    sc  = SEV.get(f.get("risk", "Medium"), BLU)
+    tech = html.escape(str(f.get("technology","")))
     # header
     hdr_data = [[
         Paragraph(f"  FINDING-{idx:02d}", p("fid", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
-        Paragraph(f.get("technology",""), p("ft", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
+        Paragraph(tech, p("ft", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
         Paragraph(f"Line {f.get('line','?')}", p("fl", fontSize=8, textColor=WHT, alignment=TA_CENTER)),
         Paragraph(sev, p("fs", fontSize=8, fontName="Helvetica-Bold", textColor=WHT, alignment=TA_CENTER)),
     ]]
@@ -177,12 +180,14 @@ def make_finding(idx, f):
         ("LEFTPADDING",   (0,0), (-1,-1), 8),
     ]))
     # body
-    snippet = f.get("content","")[:80]
+    raw_snippet = f.get("content","")[:80]
+    escaped_snippet = html.escape(str(raw_snippet))
+    suggestion = html.escape(str(f.get("suggestion","")))
     body_data = [
         [Paragraph("Evidence",       p("el", fontSize=8, fontName="Helvetica-Bold", textColor=MID)),
-         Paragraph(f"<font name='Courier' size='8'>{snippet}</font>", p("ec", fontSize=8))],
+         Paragraph(f"<font name='Courier' size='8'>{escaped_snippet}</font>", p("ec", fontSize=8))],
         [Paragraph("Recommendation", p("rl", fontSize=8, fontName="Helvetica-Bold", textColor=MID)),
-         Paragraph(f.get("suggestion",""), p("rc", fontSize=8))],
+         Paragraph(suggestion, p("rc", fontSize=8))],
     ]
     bt = Table(body_data, colWidths=[PW*0.20, PW*0.80])
     bt.setStyle(TableStyle([
@@ -300,10 +305,12 @@ def make_roadmap(rm):
     phase_colors = [RED, ORG, GRN]
     for i, ph in enumerate(rm.get("phases",[]), 1):
         col = phase_colors[min(i-1,2)]
+        name_esc = html.escape(str(ph.get("name","")))
+        duration_esc = html.escape(str(ph.get("duration","")))
         hdr = [[
             Paragraph(f"  Phase {i}", p(f"ph{i}", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
-            Paragraph(ph.get("name",""),     p(f"pn{i}", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
-            Paragraph(ph.get("duration",""), p(f"pd{i}", fontSize=8, textColor=WHT, alignment=TA_CENTER)),
+            Paragraph(name_esc,     p(f"pn{i}", fontSize=9, fontName="Helvetica-Bold", textColor=WHT)),
+            Paragraph(duration_esc, p(f"pd{i}", fontSize=8, textColor=WHT, alignment=TA_CENTER)),
         ]]
         ht = Table(hdr, colWidths=[PW*0.16, PW*0.60, PW*0.24])
         ht.setStyle(TableStyle([
@@ -312,7 +319,7 @@ def make_roadmap(rm):
             ("BOTTOMPADDING", (0,0),(-1,-1), 6),
             ("LEFTPADDING",   (0,0),(-1,-1), 8),
         ]))
-        task_rows = [[Paragraph(f"• {t}", p(f"pt{i}", fontSize=8, textColor=GRY, leading=13))]
+        task_rows = [[Paragraph(f"• {html.escape(str(t))}", p(f"pt{i}", fontSize=8, textColor=GRY, leading=13))]
                      for t in ph.get("tasks",[])]
         tt = Table(task_rows, colWidths=[PW])
         tt.setStyle(TableStyle([
