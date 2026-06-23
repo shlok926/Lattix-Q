@@ -398,8 +398,20 @@ export const BatchScanner: React.FC = () => {
   const [findings, setFindings] = useState<Finding[]>([]);
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [refactored, setRefactored] = useState<boolean>(false);
-  const [lastScanDate, setLastScanDate] = useState<string>("Nov 14, 2024 at 3:42 PM");
-  const [nextScanDate, setNextScanDate] = useState<string>("Nov 15, 2024 at 11:00 PM");
+  const [lastScanDate, setLastScanDate] = useState<string>(() => {
+    return localStorage.getItem('lattix_q_last_scan_date') || "Nov 14, 2024 at 3:42 PM";
+  });
+  const [nextScanDate, setNextScanDate] = useState<string>(() => {
+    return localStorage.getItem('lattix_q_next_scan_date') || "Nov 15, 2024 at 11:00 PM";
+  });
+
+  useEffect(() => {
+    localStorage.setItem('lattix_q_last_scan_date', lastScanDate);
+  }, [lastScanDate]);
+
+  useEffect(() => {
+    localStorage.setItem('lattix_q_next_scan_date', nextScanDate);
+  }, [nextScanDate]);
 
   interface ScanHistoryEntry {
     id: string;
@@ -413,41 +425,55 @@ export const BatchScanner: React.FC = () => {
     riskScore: number;
   }
 
-  const [scanHistory, setScanHistory] = useState<ScanHistoryEntry[]>([
-    {
-      id: "SCN-2026-004",
-      timestamp: "Jun 22, 2026 at 11:00 PM",
-      source: "Scheduled Scan",
-      operator: "System Agent (Cron)",
-      filesCount: 847,
-      criticalCount: 6,
-      highCount: 9,
-      mediumCount: 7,
-      riskScore: 68
-    },
-    {
-      id: "SCN-2026-003",
-      timestamp: "Jun 21, 2026 at 03:15 PM",
-      source: "Manual Scan",
-      operator: "admin@lattixq.io",
-      filesCount: 12,
-      criticalCount: 0,
-      highCount: 2,
-      mediumCount: 1,
-      riskScore: 38
-    },
-    {
-      id: "SCN-2026-002",
-      timestamp: "Jun 20, 2026 at 11:00 PM",
-      source: "Scheduled Scan",
-      operator: "System Agent (Cron)",
-      filesCount: 847,
-      criticalCount: 6,
-      highCount: 9,
-      mediumCount: 7,
-      riskScore: 68
+  const [scanHistory, setScanHistory] = useState<ScanHistoryEntry[]>(() => {
+    const stored = localStorage.getItem('lattix_q_scan_history');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (e) {
+        console.error("Failed to parse scan history from localStorage:", e);
+      }
     }
-  ]);
+    return [
+      {
+        id: "SCN-2026-004",
+        timestamp: "Jun 22, 2026 at 11:00 PM",
+        source: "Scheduled Scan",
+        operator: "System Agent (Cron)",
+        filesCount: 847,
+        criticalCount: 6,
+        highCount: 9,
+        mediumCount: 7,
+        riskScore: 68
+      },
+      {
+        id: "SCN-2026-003",
+        timestamp: "Jun 21, 2026 at 03:15 PM",
+        source: "Manual Scan",
+        operator: "admin@lattixq.io",
+        filesCount: 12,
+        criticalCount: 0,
+        highCount: 2,
+        mediumCount: 1,
+        riskScore: 38
+      },
+      {
+        id: "SCN-2026-002",
+        timestamp: "Jun 20, 2026 at 11:00 PM",
+        source: "Scheduled Scan",
+        operator: "System Agent (Cron)",
+        filesCount: 847,
+        criticalCount: 6,
+        highCount: 9,
+        mediumCount: 7,
+        riskScore: 68
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('lattix_q_scan_history', JSON.stringify(scanHistory));
+  }, [scanHistory]);
 
   const addScanToHistory = (source: string, filesCount: number, fndList: Finding[], risk: number) => {
     const crit = fndList.filter(f => f.severity === 'Critical').length;
