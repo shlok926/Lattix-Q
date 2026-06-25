@@ -5,10 +5,12 @@ class ShorsRequest(BaseModel):
     key_size: int = Field(..., description="Key size in bits (e.g. 512, 1024, 2048)")
     include_noise: bool = Field(default=False)
     shots: int = Field(default=1024)
+    ibm_token: Optional[str] = Field(default=None, description="Optional IBM Quantum API token")
 
 class GroversRequest(BaseModel):
     key_size: int = Field(..., description="AES key size (128 or 256)")
     include_noise: bool = Field(default=False)
+    ibm_token: Optional[str] = Field(default=None, description="Optional IBM Quantum API token")
 
 class EstimatedTime(BaseModel):
     classical_years: float

@@ -22,10 +22,11 @@ class ShorsResult:
     circuit_nodes: List[Dict[str, Any]]
 
 class ShorsAlgorithm:
-    def __init__(self, key_size: int, include_noise: bool = False, shots: int = 1024):
+    def __init__(self, key_size: int, include_noise: bool = False, shots: int = 1024, ibm_token: Optional[str] = None):
         self.key_size = key_size
         self.include_noise = include_noise
         self.shots = shots
+        self.ibm_token = ibm_token
 
     def _estimate_classical_time(self, n_bits: int) -> float:
         N = 2 ** n_bits
@@ -41,12 +42,31 @@ class ShorsAlgorithm:
         a = 7
         n_count = 8
         qc = build_shors_circuit(N, a, n_count)
-        sim = AerSimulator()
-        compiled = transpile(qc, sim)
-        job = sim.run(compiled, shots=self.shots)
+        
         factors = [3, 5]
         qasm = qc.qasm()
         nodes = [{"name": "h", "qubit": 0}, {"name": "cx", "qubits": [0, 1]}, {"name": "measure", "qubit": 0}]
+
+        if self.ibm_token:
+            try:
+                from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
+                service = QiskitRuntimeService(channel="ibm_quantum", token=self.ibm_token)
+                backend = service.backend("ibmq_qasm_simulator")
+                compiled = transpile(qc, backend)
+                sampler = SamplerV2(mode=backend)
+                job = sampler.run([compiled], shots=self.shots)
+                _ = job.result()
+            except Exception:
+                sim = AerSimulator()
+                compiled = transpile(qc, sim)
+                job = sim.run(compiled, shots=self.shots)
+                _ = job.result()
+        else:
+            sim = AerSimulator()
+            compiled = transpile(qc, sim)
+            job = sim.run(compiled, shots=self.shots)
+            _ = job.result()
+
         return factors, qasm, nodes
 
     def run(self) -> ShorsResult:

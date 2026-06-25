@@ -8,23 +8,27 @@ from app.tasks.simulation_tasks import run_shors_simulation, run_grovers_simulat
 router = APIRouter(prefix="/simulate", tags=["Simulation"])
 r = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/1"))
 
+from typing import Optional
+
 class ShorsRequest(BaseModel):
     key_size: int
     include_noise: bool = False
     shots: int = 1024
+    ibm_token: Optional[str] = None
 
 class GroversRequest(BaseModel):
     key_size: int
     include_noise: bool = False
+    ibm_token: Optional[str] = None
 
 @router.post("/shor")
 def simulate_shor(req: ShorsRequest):
-    task = run_shors_simulation.apply_async(args=[req.key_size, req.include_noise, req.shots])
+    task = run_shors_simulation.apply_async(args=[req.key_size, req.include_noise, req.shots, req.ibm_token])
     return {"job_id": task.id, "status": "PENDING"}
 
 @router.post("/grover")
 def simulate_grover(req: GroversRequest):
-    task = run_grovers_simulation.apply_async(args=[req.key_size, req.include_noise])
+    task = run_grovers_simulation.apply_async(args=[req.key_size, req.include_noise, req.ibm_token])
     return {"job_id": task.id, "status": "PENDING"}
 
 @router.get("/status/{job_id}")

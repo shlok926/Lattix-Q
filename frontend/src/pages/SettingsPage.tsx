@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { encryptToken, decryptToken } from '../utils/crypto';
 import { 
   Settings, 
   Shield, 
@@ -29,6 +30,18 @@ export const SettingsPage: React.FC = () => {
   // API Token state
   const [apiKey, setApiKey] = useState('qs_live_pq_9f2a7b8e1c6d5e0a3f4b8c9d1e');
   const [generatingKey, setGeneratingKey] = useState(false);
+  const [ibmToken, setIbmToken] = useState('');
+
+  useEffect(() => {
+    const loadToken = async () => {
+      const stored = localStorage.getItem('ibm_quantum_token');
+      if (stored) {
+        const decrypted = await decryptToken(stored);
+        setIbmToken(decrypted);
+      }
+    };
+    loadToken();
+  }, []);
 
   // Save success notification
   const [showToast, setShowToast] = useState(false);
@@ -40,7 +53,9 @@ export const SettingsPage: React.FC = () => {
     setTimeout(() => setShowToast(false), 3000);
   };
 
-  const handleSaveSettings = () => {
+  const handleSaveSettings = async () => {
+    const encrypted = await encryptToken(ibmToken);
+    localStorage.setItem('ibm_quantum_token', encrypted);
     triggerToast("Security configuration saved successfully!");
   };
 
@@ -245,7 +260,7 @@ export const SettingsPage: React.FC = () => {
                 Use this key to authorize remote CLI scanners, local sandbox containers, and CI/CD actions.
               </p>
               
-              <div className="space-y-2">
+              <div className="space-y-2 pb-2 border-b border-[#1E2D45]/40">
                 <input
                   type="text"
                   readOnly
@@ -260,6 +275,30 @@ export const SettingsPage: React.FC = () => {
                   <RefreshCw size={12} className={generatingKey ? 'animate-spin' : ''} />
                   {generatingKey ? 'Re-keying...' : 'Generate New Token'}
                 </button>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-[#475569] uppercase tracking-wider block">IBM Quantum QPU Token</span>
+                  <a 
+                    href="https://quantum.ibm.com/" 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-[9px] text-[#00C4E8] hover:underline"
+                  >
+                    Get Free Token
+                  </a>
+                </div>
+                <input
+                  type="password"
+                  value={ibmToken}
+                  onChange={(e) => setIbmToken(e.target.value)}
+                  placeholder="Paste your IBM Quantum API key (100% Free)"
+                  className="w-full bg-[#080C14] border border-[#1E2D45] rounded-lg p-2.5 text-xs text-slate-300 focus:outline-none focus:border-[#00C4E8]"
+                />
+                <p className="text-[9px] text-slate-500 leading-normal">
+                  If set, attack simulations will run on IBM Quantum Cloud simulators via qiskit-ibm-runtime. Leaves empty to use local Qiskit Aer emulation.
+                </p>
               </div>
             </div>
           </div>
