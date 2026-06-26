@@ -6,7 +6,7 @@ class MigrationPlanner:
         
         recommendations = []
         if findings:
-            recommendations = [f"For {tech}: {next((f['suggestion'] for f in findings if f['technology'] == tech), 'Upgrade to post-quantum equivalent.')}" for tech in technologies]
+            recommendations = [f"For {tech}: {next((f.get('suggestion', 'Upgrade to post-quantum equivalent.') for f in findings if f.get('technology') == tech), 'Upgrade to post-quantum equivalent.')}" for tech in technologies]
 
         roadmap = {
             "summary": f"Detected {len(findings)} legacy crypto usages across {len(technologies)} technologies.",

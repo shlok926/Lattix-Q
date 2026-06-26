@@ -207,6 +207,58 @@ except Exception as e:
     print(f"Error during domain scan: {e}")
     sys.exit(1)
 
+# Step 10: AI Code Scanner & Refactoring Verification
+print("\n--- Step 10: AI Code Scanner & Refactoring Verification ---")
+scan_url = f"{BASE_URL}/ai/scan"
+refactor_url = f"{BASE_URL}/ai/refactor"
+code_snippet = "import cryptography.hazmat.primitives.asymmetric.rsa as rsa\nkey = rsa.generate_private_key(65537, 2048)"
+try:
+    # Test Scan
+    scan_resp = session.post(scan_url, json={"filename": "test.py", "content": code_snippet}, timeout=5)
+    print(f"Scan Status: {scan_resp.status_code}")
+    assert scan_resp.status_code == 200, "AI Scan failed!"
+    scan_data = scan_resp.json()
+    findings = scan_data.get("findings", [])
+    print(f"Scan findings: {findings}")
+    assert len(findings) > 0, "No vulnerabilities found in vulnerable code!"
+
+    # Test Refactor
+    refactor_resp = session.post(refactor_url, json={"code": code_snippet, "findings": findings}, timeout=5)
+    print(f"Refactor Status: {refactor_resp.status_code}")
+    assert refactor_resp.status_code == 200, "AI Refactor failed!"
+    refactor_data = refactor_resp.json()
+    print(f"Refactor fixes: {refactor_data.get('fixes_applied')}")
+    assert "refactored_code" in refactor_data, "Refactored code missing!"
+    print("AI Code Scanner & Refactoring Verified Successfully.")
+except Exception as e:
+    print(f"Error during AI scan/refactor verification: {e}")
+    sys.exit(1)
+
+# Step 11: AI Roadmap & Batch Scanner Verification
+print("\n--- Step 11: AI Roadmap & Batch Scanner Verification ---")
+roadmap_url = f"{BASE_URL}/ai/roadmap"
+batch_url = f"{BASE_URL}/ai/batch-scan"
+try:
+    # Test Roadmap
+    roadmap_resp = session.post(roadmap_url, json={"findings": [{"line": 1, "technology": "RSA"}]}, timeout=5)
+    print(f"Roadmap Status: {roadmap_resp.status_code}")
+    assert roadmap_resp.status_code == 200, "AI Roadmap failed!"
+    roadmap_data = roadmap_resp.json()
+    print(f"Roadmap summary: {roadmap_data.get('summary')}")
+    assert len(roadmap_data.get("phases", [])) > 0, "Roadmap phases missing!"
+
+    # Test Batch Scan
+    batch_resp = session.post(batch_url, json={"files": [{"filename": "f1.py", "content": "import rsa"}, {"filename": "f2.py", "content": "import hashlib.md5"}]}, timeout=5)
+    print(f"Batch Scan Status: {batch_resp.status_code}")
+    assert batch_resp.status_code == 200, "AI Batch Scan failed!"
+    batch_data = batch_resp.json()
+    print(f"Batch summary: {batch_data.get('summary')}")
+    assert len(batch_data.get("results", [])) == 2, "Batch results count mismatch!"
+    print("AI Roadmap & Batch Scanner Verified Successfully.")
+except Exception as e:
+    print(f"Error during AI roadmap/batch verification: {e}")
+    sys.exit(1)
+
 print("\n=============================================")
 print("  ALL E2E INTEGRATION TESTS PASSED SUCCESSFULLY!  ")
 print("=============================================")
