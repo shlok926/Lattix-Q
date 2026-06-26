@@ -640,7 +640,7 @@ export const Dashboard: React.FC = () => {
       
       {/* Toast Notification Popup */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 bg-[#0D1421]/90 backdrop-blur-md border border-[#00C4E8]/30 text-[#E2E8F0] px-4 py-3 rounded-xl shadow-[0_0_30px_rgba(0,196,232,0.15)] flex items-center gap-3 z-50 max-w-sm animate-slide-in hover:scale-[1.02] transition-transform">
+        <div className="fixed bottom-6 right-6 bg-[#0D1421]/95 backdrop-blur-md border border-white/[0.08] text-[#E2E8F0] px-4 py-3 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.5)] flex items-center gap-3 z-50 max-w-sm hover:scale-[1.02] transition-transform">
           <div className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00C4E8] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00C4E8]"></span>
@@ -752,7 +752,7 @@ export const Dashboard: React.FC = () => {
                 onClick={escalateAlert}
                 className="text-red-400 font-bold hover:underline cursor-pointer flex items-center gap-1"
               >
-                🚨 Escalate to CTO & Slack
+                Escalate to CTO & Slack
               </button>
               <div className="flex items-center gap-1.5 text-slate-400">
                 <span className="hover:text-white cursor-pointer hover:underline font-bold" onClick={acknowledgeAlert}>
@@ -783,7 +783,7 @@ export const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
         {/* Card 1: Risk Score (Hover for multi-env tooltips) */}
-        <div className="bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-300 hover:border-[#00C4E8]/50 hover:bg-[#10192A]">
+        <div className="bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-200 hover:border-[#00C4E8]/40 hover:bg-[#10192A] hover:shadow-[0_4px_20px_rgba(0,196,232,0.06)] hover:-translate-y-0.5">
           <div className="flex justify-between items-start">
             <span className="text-[12px] text-[#94A3B8] font-bold tracking-wide uppercase">Overall Risk Score</span>
             <AlertCircle className="text-[#EF4444] group-hover:scale-110 transition-transform" size={18} />
@@ -823,7 +823,7 @@ export const Dashboard: React.FC = () => {
         {/* Card 2: Vulnerable Systems (Click to Open Drilldown) */}
         <div 
           onClick={() => setIsDrilldownOpen(true)}
-          className="bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-300 hover:border-[#00C4E8]/50 hover:bg-[#10192A] cursor-pointer"
+          className="bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-200 hover:border-[#00C4E8]/40 hover:bg-[#10192A] hover:shadow-[0_4px_20px_rgba(0,196,232,0.06)] hover:-translate-y-0.5 cursor-pointer"
         >
           <div className="flex justify-between items-start">
             <span className="text-[12px] text-[#94A3B8] font-bold tracking-wide uppercase">Vulnerable Systems</span>
@@ -838,7 +838,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Card 3: Post-Quantum Ready */}
-        <div className="bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-300 hover:border-[#00C4E8]/50 hover:bg-[#10192A]">
+        <div className="bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-200 hover:border-[#00C4E8]/40 hover:bg-[#10192A] hover:shadow-[0_4px_20px_rgba(0,196,232,0.06)] hover:-translate-y-0.5">
           <div className="flex justify-between items-start">
             <span className="text-[12px] text-[#94A3B8] font-bold tracking-wide uppercase">PQC Ready Nodes</span>
             <ShieldCheck className="text-green-400 group-hover:scale-110 transition-transform" size={18} />
@@ -852,7 +852,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Card 4: Compliance Status */}
-        <div className="bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-300 hover:border-[#00C4E8]/50 hover:bg-[#10192A]">
+        <div className="bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 relative overflow-hidden flex flex-col justify-between h-[130px] group transition-all duration-200 hover:border-[#00C4E8]/40 hover:bg-[#10192A] hover:shadow-[0_4px_20px_rgba(0,196,232,0.06)] hover:-translate-y-0.5">
           <div className="flex justify-between items-start">
             <span className="text-[12px] text-[#94A3B8] font-bold tracking-wide uppercase">CNSA 2.0 Compliance</span>
             <CheckCircle className="text-[#00C4E8] group-hover:scale-110 transition-transform" size={18} />
@@ -873,10 +873,10 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* ZONE 4: Historical Trend Graph & Simulated Attack Benchmarks */}
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-10 gap-6">
         
         {/* Left Column (60% width): Interactive Recharts 30-Day Risk Line Chart */}
-        <div className="lg:col-span-6 bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 flex flex-col justify-between">
+        <div className="xl:col-span-6 bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div>
               <span className="text-[11px] font-bold text-[#475569] uppercase tracking-widest block font-mono">
@@ -917,7 +917,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Column (40% width): Live Active Assessment Simulation Panel */}
-        <div className="lg:col-span-4 bg-[#0D1421] border border-[#1E2D45] rounded-xl p-5 flex flex-col justify-between min-h-[290px]">
+        <div className="xl:col-span-4 bg-[#0D1421] border border-white/[0.06] rounded-xl p-5 flex flex-col justify-between min-h-[290px]">
           {activeSimState === 'RUNNING' && (
             <div className="space-y-4 flex-grow flex flex-col justify-between">
               <div className="flex items-center justify-between">
@@ -1015,7 +1015,7 @@ export const Dashboard: React.FC = () => {
               </div>
 
               <div className="bg-red-500/10 text-red-400 border border-red-500/30 text-center rounded-lg py-2.5 text-[10px] font-bold uppercase tracking-wider font-mono">
-                🛑 CRYPTOGRAPHIC KEY COMPROMISED
+                CRYPTOGRAPHIC KEY COMPROMISED
               </div>
             </div>
           )}
@@ -1118,7 +1118,7 @@ export const Dashboard: React.FC = () => {
                       }}
                       className={`${algo.status === 'COMPROMISED' ? 'text-rose-400' : 'text-[#00C4E8]'} font-bold hover:underline bg-transparent border-none cursor-pointer text-xs`}
                     >
-                      {algo.classical ? (algo.status === 'COMPROMISED' ? 'Re-run Attack 🔄' : 'Simulate Attack →') : "Verify Safety →"}
+                      {algo.classical ? (algo.status === 'COMPROMISED' ? 'Re-run Attack' : 'Simulate Attack →') : "Verify Safety →"}
                     </button>
                   </td>
                 </tr>

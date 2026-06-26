@@ -947,9 +947,13 @@ export const BatchScanner: React.FC = () => {
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#00C4E8]/10 border border-[#00C4E8]/30 text-[#00C4E8] text-xs px-4 py-3 rounded-lg shadow-2xl flex items-center gap-2 animate-fadeIn font-mono">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0D1421]/95 backdrop-blur-md border border-white/[0.08] text-[#E2E8F0] px-4 py-3 rounded-xl shadow-[0_4px_25px_rgba(0,0,0,0.5)] flex items-center gap-3 max-w-sm hover:scale-[1.02] transition-transform">
+          <div className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00C4E8] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00C4E8]"></span>
+          </div>
           <Check size={14} className="text-[#00C4E8]" />
-          <span>{toastMessage}</span>
+          <span className="text-xs font-semibold">{toastMessage}</span>
         </div>
       )}
 
