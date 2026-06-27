@@ -178,3 +178,42 @@ If you see `error during connect: daemon not response`, make sure **Docker Deskt
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing & Feedback
+
+Contributions, suggestions, and feedback are highly welcome!
+
+* **Got suggestions or feature requests?** Feel free to open a new Issue or share your ideas.
+* **Want to contribute?** Feel free to fork this repository, make your changes, and submit a Pull Request.
+
+---
+
+## ⭐ Show Your Support
+
+Love this tool? Help us grow:
+* 🌟 **Star the repository** (GitHub Star Button)
+* 🐛 **Report bugs** (GitHub Issues)
+* 💡 **Suggest features** (GitHub Discussions)
+* 📢 **Share with others** (LinkedIn/Twitter)
+* 🤝 **Contribute code** (Pull Requests)
+
+---
+
+## 👤 Author & Contact
+
+<p align="center">
+  <b>Shlok Thorat</b><br />
+  <i>Let's connect on LinkedIn, collaborate, and build amazing things together!</i>
+</p>
+
+<p align="center">
+  <a href="mailto:shlokthorat29075@gmail.com"><img src="https://img.shields.io/badge/Email-shlokthorat29075%40gmail.com-red?style=flat-square&logo=gmail" alt="Email" /></a>
+  <a href="https://github.com/shlok926"><img src="https://img.shields.io/badge/GitHub-%40shlok926-black?style=flat-square&logo=github" alt="GitHub" /></a>
+  <a href="https://linkedin.com/in/shlok-thorat-39916a405"><img src="https://img.shields.io/badge/LinkedIn-shlok--thorat--39916a405-blue?style=flat-square&logo=linkedin" alt="LinkedIn" /></a>
+</p>
+
+<p align="center">
+  Made with 💖 by Shlok! for Cybersecurity Innovation • <a href="#lattix---q">Back to Top</a>
+</p>
