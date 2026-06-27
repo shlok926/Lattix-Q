@@ -20,41 +20,37 @@
 </p>
 
 <p align="center">
-  <a href="#key-features-at-a-glance">Key Features</a> •
-  <a href="#project-overview--problem-statement">Overview & Context</a> •
-  <a href="#microservices-architecture">Architecture</a> •
-  <a href="#supported-cryptographic-algorithms">Supported PQC Algorithms</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#troubleshooting">Troubleshooting</a>
+  <a href="#1-executive-summary">Executive Summary</a> •
+  <a href="#4-architecture-overview">Architecture</a> •
+  <a href="#7-quickstart">Quickstart</a> •
+  <a href="#10-engineering-considerations">Engineering Considerations</a> •
+  <a href="#13-references">References</a>
 </p>
-
----
-
-## Key Features at a Glance
-
-| Quantum Attack Lab | AI Code Scanner | Crypto Workbench | Compliance & Reports |
-| :--- | :--- | :--- | :--- |
-| Simulate factorization and key-recovery using Shor's and Grover's algorithms. | Scan source code repositories to locate legacy cipher suites and auto-apply patches. | Run real-time performance benchmarks comparing classical ciphers vs. PQC ciphers. | Generate professional PDF reports scoring transition maturity against NIST mandates. |
 
 ---
 
 ## Table of Contents
 
-* [Key Features at a Glance](#key-features-at-a-glance)
-* [Project Overview & Problem Statement](#project-overview--problem-statement)
-* [Microservices Architecture](#microservices-architecture)
-* [Core Capabilities & Modules](#core-capabilities--modules)
-* [Supported Cryptographic Algorithms](#supported-cryptographic-algorithms)
-* [Quick Start](#quick-start)
-* [Troubleshooting](#troubleshooting)
-* [License](#license)
-* [Contributing & Feedback](#contributing--feedback)
-* [Show Your Support](#show-your-support)
-* [Author & Contact](#author--contact)
+| | |
+| :--- | :--- |
+| 1. [Executive Summary](#1-executive-summary) | 9. [Design Decisions](#9-design-decisions) |
+| 2. [Scope & Background](#2-scope--background) | 10. [Engineering Considerations](#10-engineering-considerations) |
+| 3. [Key Capabilities](#3-key-capabilities) | 11. [Future Improvements](#11-future-improvements) |
+| 4. [Architecture Overview](#4-architecture-overview) | 12. [Contributing](#12-contributing) |
+| 5. [Tech Stack](#5-tech-stack) | 13. [References](#13-references) |
+| 6. [Repository Structure](#6-repository-structure) | 14. [Show Your Support](#14-show-your-support) |
+| 7. [Quickstart](#7-quickstart) | 15. [Author & Contact](#15-author--contact) |
+| 8. [Troubleshooting](#8-troubleshooting) | |
 
 ---
 
-## Project Overview & Problem Statement
+## 1. Executive Summary
+
+Lattix-Q is a unified cybersecurity risk-management platform designed to assist enterprises in auditing legacy public-key infrastructures (RSA, ECC) and orchestrating transitions to post-quantum standards. The platform models real-time computational overhead, analyzes application source code for vulnerable parameters, and generates cryptographic health reports ready for compliance audits.
+
+---
+
+## 2. Scope & Background
 
 ### The Threat: Store Now, Decrypt Later (SNDL)
 Modern secure data communications rely heavily on public-key cryptography (like **RSA** and **ECC**). However, quantum computers utilizing **Shor's Algorithm** will be capable of breaking these mathematical problems in the future. Adversaries are actively harvesting encrypted enterprise data today (**SNDL**) to decrypt it once cryptographically relevant quantum computers (CRQCs) emerge.
@@ -62,14 +58,22 @@ Modern secure data communications rely heavily on public-key cryptography (like 
 ### The Mandate: Transition to Post-Quantum Cryptography (PQC)
 Enterprises must transition immediately to lattice-based cryptographic algorithms. Government directives such as **NIST SP 800-219** and the **NSA Commercial National Security Algorithm Suite (CNSA 2.0)** mandate complete migration to post-quantum standards (ML-KEM, ML-DSA) by 2030-2033.
 
-**Lattix-Q** solves this challenge by providing a centralized dashboard to:
-1. **Assess risk**: Pinpoint legacy ciphers (RSA, ECC, 3DES) inside enterprise codebases.
-2. **Profile algorithms**: Profile CPU/Memory metrics of new NIST-approved ciphers under different network loads.
-3. **Simulate attacks**: Track simulated qubit scaling and attack complexities.
+---
+
+## 3. Key Capabilities
+
+| Quantum Attack Lab | AI Code Scanner | Crypto Workbench | Compliance & Reports |
+| :--- | :--- | :--- | :--- |
+| Simulate factorization and key-recovery using Shor's and Grover's algorithms. | Scan source code repositories to locate legacy cipher suites and auto-apply patches. | Run real-time performance benchmarks comparing ciphers under simulated network loads. | Generate professional PDF reports scoring transition maturity against NIST mandates. |
+
+* **Quantum Attack Laboratory**: Estimating logical qubits required to crack ciphers dynamically.
+* **AI Code Scanner**: Parse source files to identify cryptographic configurations and recommend secure updates.
+* **PQC Benchmark Center**: Metric charts displaying execution times and key/ciphertext payload sizes.
+* **Compliance Blueprints**: Interactive checklist scoring readiness for CNSA 2.0 timelines.
 
 ---
 
-## Microservices Architecture
+## 4. Architecture Overview
 
 Lattix-Q uses a decoupled, containerized microservices mesh orchestrated via `docker-compose` and routed through an **Nginx reverse proxy** acting as a unified API Gateway.
 
@@ -145,40 +149,46 @@ flowchart TB
 
 ---
 
-## Core Capabilities & Modules
+## 5. Tech Stack
 
-### 1. Quantum Attack Laboratory
-* **Mathematical Emulation**: Emulate quantum period-finding (Shor's) and unstructured search (Grover's) algorithms.
-* **Qubit Resource Estimation**: Calculate required physical and logical qubits needed to break ciphers based on key lengths.
-* **IBM Quantum Cloud Integration**: Connect directly to Qiskit Runtime to run emulations on real hardware or Aer simulators.
-
-### 2. AI Code Scanner (Batch Auditor)
-* **Static AST Analysis**: Scan code files for hardcoded vulnerable ciphers (e.g. `MD5`, `SHA-1`, `RSA-1024`).
-* **Auto-Patching Engine**: Propose secure replacements to modern standards (e.g., swapping RSA key exchange for Kyber KEM).
-* **Scan History**: Retain complete cron audit logs of scheduled scans for compliance validation.
-
-### 3. PQC Benchmark Center
-* **Timing Profiling**: Profile execution speeds of key generation, encapsulation/signing, and decapsulation/verification.
-* **Memory Footprint Assessment**: Compare ciphers under simulated network constraints to observe latency impacts.
+* **Frontend**: React 18, TypeScript 5, Vite 5, Tailwind CSS 3, Recharts, Lucide React
+* **Backend Framework**: Python 3.11, FastAPI, Celery, Uvicorn
+* **Quantum Modeling**: Qiskit 1.x (for period-finding algorithms)
+* **Cryptographic Libs**: `liboqs` (Integration for Kyber/Dilithium), PyCryptodome
+* **Databases & Cache**: PostgreSQL 15, Redis 7 (Broker & Result backend)
+* **Infrastructure**: Docker Compose, Nginx, Prometheus, Grafana
 
 ---
 
-## Supported Cryptographic Algorithms
+## 6. Repository Structure
 
-Lattix-Q supports testing, benchmarking, and scanning configurations for the following cryptographic algorithms:
-
-| Category | Algorithm | Standard / Specification | Security Strength |
-| :--- | :--- | :--- | :--- |
-| **PQC Key Encapsulation (KEM)** | **Kyber (ML-KEM)** | NIST FIPS 203 | NIST Levels 1, 3, 5 |
-| **PQC Digital Signature** | **Dilithium (ML-DSA)** | NIST FIPS 204 | NIST Levels 2, 3, 5 |
-| **PQC Digital Signature** | **Falcon** | NIST FIPS 205 | NIST Level 1 |
-| **Classical Asymmetric** | **RSA** | PKCS #1 v2.2 | Vulnerable to Shor's |
-| **Classical Asymmetric** | **ECC (ECDSA / ECDH)** | SECG SEC 2 | Vulnerable to Shor's |
-| **Symmetric Cipher** | **AES** | FIPS 197 | AES-256 is Quantum-Safe (Grover-resistant) |
+```
+Lattix-Q/
+├── assets/                  # Branding images and generated logos
+├── docker/                  # Nginx proxy routing files
+│   └── nginx/
+│       └── default.conf
+├── frontend/                # React (TypeScript + Vite) Application
+│   ├── src/
+│   │   ├── components/      # Common shell components
+│   │   ├── pages/           # Core layout modules (Dashboard, Scanner)
+│   │   └── index.css        # Global CSS rules
+│   └── package.json
+├── services/                # Containerized microservices
+│   ├── ai-analyst-service/  # LLM context assistant
+│   ├── api-gateway/         # Unified ingress validator
+│   ├── benchmark-service/   # Encrypt/Decrypt profiling
+│   ├── classical-crypto/    # Legacy auditing ciphers
+│   ├── pqc-service/         # Liboqs implementations
+│   ├── quantum-attack/      # Qiskit simulator engine
+│   └── report-service/      # Audit scoring builder
+├── docker-compose.yml       # Production orchestrator
+└── README.md
+```
 
 ---
 
-## Quick Start
+## 7. Quickstart
 
 ### Prerequisites
 Make sure your system has the following installed:
@@ -198,7 +208,7 @@ Make sure your system has the following installed:
    ```bash
    cp .env.example .env
    ```
-   *Edit `.env` to supply API keys (like Anthropic/OpenAI keys for the AI Analyst) if desired.*
+   *Supply API keys (e.g. Anthropic key for the AI Threat Analyst) inside `.env` if desired.*
 
 3. **Build and Spin Up the Containers**:
    ```bash
@@ -212,7 +222,7 @@ Make sure your system has the following installed:
 
 ---
 
-## Troubleshooting
+## 8. Troubleshooting
 
 ### Port Conflicts
 If you receive port conflict errors (e.g. port `80` or `3000` is already in use by another app):
@@ -225,13 +235,30 @@ If you see `error during connect: daemon not response`, make sure **Docker Deskt
 
 ---
 
-## License
+## 9. Design Decisions
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+* **Microservices Partitioning**: Separating cryptographic calculations from core page state ensures that a heavy period-finding simulation doesn't degrade client UI responsiveness.
+* **Celery Async Workers**: Shor's and Grover's algorithms are computationally heavy; offloading them to Celery ensures the API Gateway does not timeout waiting for results.
+* **Client-Side Cron Backfilling**: Built-in background logic computes daily cron offsets during offline presentations to maintain data integrity in the scan list.
 
 ---
 
-## Contributing & Feedback
+## 10. Engineering Considerations
+
+* **Quantum Simulation Restrictions**: Standard server CPUs struggle to execute Shor's algorithm for keys above 16 bits. Lattix-Q uses mathematical scaling regressions to calculate physical/logical qubit requirements for keys of standard length (e.g. RSA-2048) rather than running real simulations.
+* **Cryptographic Agility**: Key encapsulation (KEM) ciphers are bound to standard wrapper interfaces so that transition targets can adapt when NIST releases future FIPS amendments.
+
+---
+
+## 11. Future Improvements
+
+* **Identity Provider Integration**: Migration of local user state databases to SAML 2.0 / OpenID Connect (OIDC) via Okta or Active Directory.
+* **CI/CD Integration**: Creating a headless CLI scanner wrapper to automate vulnerability checks during push pipelines.
+* **Hardware Security Modules (HSM)**: Enabling backend integrations to test PQC performance on local virtual HSM instances.
+
+---
+
+## 12. Contributing
 
 Contributions, suggestions, and feedback are highly welcome!
 
@@ -240,9 +267,17 @@ Contributions, suggestions, and feedback are highly welcome!
 
 ---
 
+## 13. References
+
+* **NIST FIPS 203 (ML-KEM)**: [Standard for Key-Encapsulation Mechanism](https://csrc.nist.gov/pubs/fips/203/ipd)
+* **NIST FIPS 204 (ML-DSA)**: [Standard for Digital Signature Algorithm](https://csrc.nist.gov/pubs/fips/204/ipd)
+* **NSA CNSA 2.0 Timelines**: [Commercial National Security Algorithm Suite 2.0 Transition Plan](https://www.nsa.gov/Cybersecurity/Post-Quantum-Cybersecurity-Resources/)
+
+---
+
 ## Show Your Support
 
-Love this tool? Help us grow:
+Love Lattix-Q? Help us grow:
 * Star the repository (GitHub Star Button)
 * Report bugs (GitHub Issues)
 * Suggest features (GitHub Discussions)
