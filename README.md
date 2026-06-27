@@ -20,38 +20,41 @@
 </p>
 
 <p align="center">
-  <a href="#🚀-key-features-at-a-glance">Key Features</a> •
-  <a href="#📊-project-overview--problem-statement">Overview & Context</a> •
-  <a href="#🏗️-microservices-architecture">Architecture</a> •
-  <a href="#🛡️-supported-algorithms">Supported PQC Algorithms</a> •
-  <a href="#⚙️-quick-start">Quick Start</a> •
-  <a href="#🔧-troubleshooting">Troubleshooting</a>
+  <a href="#key-features-at-a-glance">Key Features</a> •
+  <a href="#project-overview--problem-statement">Overview & Context</a> •
+  <a href="#microservices-architecture">Architecture</a> •
+  <a href="#supported-cryptographic-algorithms">Supported PQC Algorithms</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#troubleshooting">Troubleshooting</a>
 </p>
 
 ---
 
-## 🚀 Key Features at a Glance
+## Key Features at a Glance
 
-| ⚡ Quantum Attack Lab | 🔍 AI Code Scanner | 🧪 Crypto Workbench | 📋 Compliance & Reports |
+| Quantum Attack Lab | AI Code Scanner | Crypto Workbench | Compliance & Reports |
 | :--- | :--- | :--- | :--- |
 | Simulate factorization and key-recovery using Shor's and Grover's algorithms. | Scan source code repositories to locate legacy cipher suites and auto-apply patches. | Run real-time performance benchmarks comparing classical ciphers vs. PQC ciphers. | Generate professional PDF reports scoring transition maturity against NIST mandates. |
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-* [🚀 Key Features at a Glance](#-key-features-at-a-glance)
-* [📊 Project Overview & Problem Statement](#-project-overview--problem-statement)
-* [🏗️ Microservices Architecture](#️-microservices-architecture)
-* [🛠️ Core Capabilities & Modules](#️-core-capabilities--modules)
-* [🛡️ Supported Algorithms](#️-supported-algorithms)
-* [⚙️ Quick Start](#️-quick-start)
-* [🔧 Troubleshooting & Development](#-troubleshooting--development)
-* [📄 License](#-license)
+* [Key Features at a Glance](#key-features-at-a-glance)
+* [Project Overview & Problem Statement](#project-overview--problem-statement)
+* [Microservices Architecture](#microservices-architecture)
+* [Core Capabilities & Modules](#core-capabilities--modules)
+* [Supported Cryptographic Algorithms](#supported-cryptographic-algorithms)
+* [Quick Start](#quick-start)
+* [Troubleshooting](#troubleshooting)
+* [License](#license)
+* [Contributing & Feedback](#contributing--feedback)
+* [Show Your Support](#show-your-support)
+* [Author & Contact](#author--contact)
 
 ---
 
-## 📊 Project Overview & Problem Statement
+## Project Overview & Problem Statement
 
 ### The Threat: Store Now, Decrypt Later (SNDL)
 Modern secure data communications rely heavily on public-key cryptography (like **RSA** and **ECC**). However, quantum computers utilizing **Shor's Algorithm** will be capable of breaking these mathematical problems in the future. Adversaries are actively harvesting encrypted enterprise data today (**SNDL**) to decrypt it once cryptographically relevant quantum computers (CRQCs) emerge.
@@ -66,7 +69,7 @@ Enterprises must transition immediately to lattice-based cryptographic algorithm
 
 ---
 
-## 🏗️ Microservices Architecture
+## Microservices Architecture
 
 Lattix-Q uses a decoupled, containerized microservices mesh orchestrated via `docker-compose` and routed through an **Nginx reverse proxy** acting as a unified API Gateway.
 
@@ -95,7 +98,7 @@ graph TD
 
 ---
 
-## 🛠️ Core Capabilities & Modules
+## Core Capabilities & Modules
 
 ### 1. Quantum Attack Laboratory
 * **Mathematical Emulation**: Emulate quantum period-finding (Shor's) and unstructured search (Grover's) algorithms.
@@ -113,7 +116,7 @@ graph TD
 
 ---
 
-## 🛡️ Supported Algorithms
+## Supported Cryptographic Algorithms
 
 Lattix-Q supports testing, benchmarking, and scanning configurations for the following cryptographic algorithms:
 
@@ -128,15 +131,15 @@ Lattix-Q supports testing, benchmarking, and scanning configurations for the fol
 
 ---
 
-## ⚙️ Quick Start
+## Quick Start
 
-### 📋 Prerequisites
+### Prerequisites
 Make sure your system has the following installed:
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) (v20.10+)
 * [Docker Compose](https://docs.docker.com/compose/) (v2.0+)
 * [Git](https://git-scm.com/)
 
-### 🚀 Running the Localhost Environment
+### Running the Localhost Environment
 
 1. **Clone the Repository**:
    ```bash
@@ -162,7 +165,7 @@ Make sure your system has the following installed:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Port Conflicts
 If you receive port conflict errors (e.g. port `80` or `3000` is already in use by another app):
@@ -175,13 +178,13 @@ If you see `error during connect: daemon not response`, make sure **Docker Deskt
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🤝 Contributing & Feedback
+## Contributing & Feedback
 
 Contributions, suggestions, and feedback are highly welcome!
 
@@ -190,18 +193,18 @@ Contributions, suggestions, and feedback are highly welcome!
 
 ---
 
-## ⭐ Show Your Support
+## Show Your Support
 
 Love this tool? Help us grow:
-* 🌟 **Star the repository** (GitHub Star Button)
-* 🐛 **Report bugs** (GitHub Issues)
-* 💡 **Suggest features** (GitHub Discussions)
-* 📢 **Share with others** (LinkedIn/Twitter)
-* 🤝 **Contribute code** (Pull Requests)
+* Star the repository (GitHub Star Button)
+* Report bugs (GitHub Issues)
+* Suggest features (GitHub Discussions)
+* Share with others (LinkedIn/Twitter)
+* Contribute code (Pull Requests)
 
 ---
 
-## 👤 Author & Contact
+## Author & Contact
 
 <p align="center">
   <b>Shlok Thorat</b><br />
