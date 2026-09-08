@@ -90,6 +90,7 @@ async def scan_domain(request: Request, body: dict):
         raise HTTPException(status_code=404, detail="Domain could not be resolved")
 
     context = ssl.create_default_context()
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
     try:
         with socket.create_connection((domain, 443), timeout=5) as sock:
             with context.wrap_socket(sock, server_hostname=domain) as ssock:
