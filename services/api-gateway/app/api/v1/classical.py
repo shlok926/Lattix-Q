@@ -85,9 +85,13 @@ async def scan_domain(request: Request, body: dict):
     from cryptography.hazmat.backends import default_backend
 
     try:
-        socket.gethostbyname(domain)
+        ip_addr = socket.gethostbyname(domain)
+        import ipaddress
+        ip_obj = ipaddress.ip_address(ip_addr)
+        if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_link_local or ip_obj.is_multicast:
+            raise ValueError("Private IP detected")
     except Exception:
-        raise HTTPException(status_code=404, detail="Domain could not be resolved")
+        raise HTTPException(status_code=400, detail="Domain could not be resolved or resolves to an internal/private IP address")
 
     context = ssl.create_default_context()
     context.minimum_version = ssl.TLSVersion.TLSv1_2
