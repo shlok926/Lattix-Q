@@ -41,6 +41,12 @@ class KnowledgeBaseRAG:
         Uses proximity and association matching for higher reliability.
         """
         cleaned_query = query.strip()
+        
+        # Mitigate ReDoS by limiting input length as recommended by CodeQL
+        if len(cleaned_query) > 1000:
+            log.warning("Security threat detected: Input exceeds maximum length.", query_length=len(cleaned_query))
+            raise PromptInjectionError("Security violation: Input too long.")
+            
         query_lower = cleaned_query.lower()
         
         # Rule 1: "ignore" and "instruction"/"rule"
