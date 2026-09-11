@@ -96,7 +96,7 @@ async def scan_domain(request: Request, body: dict):
     context = ssl.create_default_context()
     context.minimum_version = ssl.TLSVersion.TLSv1_2
     try:
-        with socket.create_connection((domain, 443), timeout=5) as sock:
+        with socket.create_connection((ip_addr, 443), timeout=5) as sock:
             with context.wrap_socket(sock, server_hostname=domain) as ssock:
                 der_cert = ssock.getpeercert(binary_form=True)
                 cert = x509.load_der_x509_certificate(der_cert, default_backend())
@@ -106,13 +106,17 @@ async def scan_domain(request: Request, body: dict):
                 pqc_support = False
                 headers_info = {}
                 try:
-                    import httpx
-                    async with httpx.AsyncClient(timeout=3) as client:
-                        resp = await client.get(f"https://{domain}")
-                        server_header = resp.headers.get("server", "").lower()
-                        if "cloudflare" in server_header or "gws" in server_header or "google" in server_header:
-                            pqc_support = True
-                            headers_info["server"] = resp.headers.get("server")
+                    # Send a raw HTTP HEAD request over the existing secure socket
+                    # This uses the validated ip_addr and avoids httpx SSRF vulnerabilities
+                    ssock.sendall(f"HEAD / HTTP/1.1\r\nHost: {domain}\r\nConnection: close\r\n\r\n".encode("utf-8"))
+                    response = ssock.recv(4096).decode("utf-8", errors="ignore")
+                    for line in response.split("\r\n"):
+                        if line.lower().startswith("server:"):
+                            server_header = line.split(":", 1)[1].strip().lower()
+                            if "cloudflare" in server_header or "gws" in server_header or "google" in server_header:
+                                pqc_support = True
+                                headers_info["server"] = server_header
+                            break
                 except Exception:
                     pass
 
