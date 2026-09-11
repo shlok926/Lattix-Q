@@ -74,8 +74,9 @@ class KnowledgeBaseRAG:
             log.warning("Security threat detected: DAN jailbreak attempt blocked.", query=cleaned_query)
             raise PromptInjectionError("Security violation: Restricted input pattern detected.")
             
-        # Remove any raw HTML/XML tags from the query to prevent injection in context XML packaging
-        cleaned_query = re.sub(r"<[^>]*>", "", cleaned_query)
+        # Escape any raw HTML/XML tags from the query to prevent injection in context XML packaging
+        # This completely avoids ReDoS vulnerabilities associated with regex-based tag removal
+        cleaned_query = cleaned_query.replace("<", "&lt;").replace(">", "&gt;")
         return cleaned_query
 
     def sanitize_chunk(self, text: str) -> str:
