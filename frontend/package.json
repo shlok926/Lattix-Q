@@ -13,7 +13,7 @@
     "axios": "^1.20.0",
     "framer-motion": "^13.1.0",
     "lucide-react": "^1.39.0",
-    "react": "^19.2.8",
+    "react": "^19.3.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.18.3",
     "recharts": "^3.10.1",
