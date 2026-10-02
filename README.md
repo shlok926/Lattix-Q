@@ -73,9 +73,12 @@ Enterprises must transition immediately to lattice-based cryptographic algorithm
 
 ---
 
-## 4. Architecture Overview
+## 4. Architecture & Workflows
 
-Lattix-Q uses a decoupled, containerized microservices mesh orchestrated via `docker-compose` and routed through an **Nginx reverse proxy** acting as a unified API Gateway.
+Lattix-Q is built on a highly scalable, decoupled microservices architecture. Below are the detailed architectural diagrams showcasing the system at different layers.
+
+### 4.1. Overall System Architecture
+This diagram illustrates the high-level infrastructure, container orchestration, and how the various stacks (UI, Gateway, Labs, Async, and Monitoring) interact.
 
 ```mermaid
 flowchart TB
@@ -139,12 +142,123 @@ flowchart TB
     class CeleryWorker asyncClass;
     class Prometheus,Grafana monClass;
 
-    %% Subgraph styling (dark containers)
+    %% Subgraph styling
     style UI fill:#18181b,stroke:#27272a,stroke-width:1px,color:#fff
     style GW fill:#18181b,stroke:#27272a,stroke-width:1px,color:#fff
     style LAB fill:#18181b,stroke:#27272a,stroke-width:1px,color:#fff
     style ASYNC fill:#18181b,stroke:#27272a,stroke-width:1px,color:#fff
     style MON fill:#18181b,stroke:#27272a,stroke-width:1px,color:#fff
+```
+
+### 4.2. API Architecture
+The API Gateway acts as the single entry point for all client requests, handling cross-cutting concerns like authentication, rate limiting, and request routing before hitting internal microservices.
+
+```mermaid
+flowchart LR
+    Client["Client App"]
+    
+    subgraph APIGateway ["API Gateway (FastAPI)"]
+        direction TB
+        Auth["Auth & JWT Middleware"]
+        RateLimit["Rate Limiter"]
+        Router["Service Router"]
+        
+        Auth --> RateLimit --> Router
+    end
+    
+    subgraph Microservices ["Internal Microservices Mesh"]
+        Classical["Classical Crypto API"]
+        PQC["PQC Service API"]
+        Quantum["Quantum Attack API"]
+        Report["Reporting API"]
+        AI["AI Analyst API"]
+    end
+    
+    Client -->|HTTPS / REST| Auth
+    Router -->|/v1/classical| Classical
+    Router -->|/v1/pqc| PQC
+    Router -->|/v1/simulate| Quantum
+    Router -->|/v1/report| Report
+    Router -->|/v1/ai| AI
+    
+    classDef gwClass fill:#1b4d3e,stroke:#2d6a4f,stroke-width:2px,color:#fff;
+    classDef labClass fill:#4a148c,stroke:#7b1fa2,stroke-width:2px,color:#fff;
+    class Auth,RateLimit,Router gwClass;
+    class Classical,PQC,Quantum,Report,AI labClass;
+```
+
+### 4.3. Database Architecture
+Lattix-Q utilizes PostgreSQL for persistent relational storage (users, audit logs, reports) and Redis for high-speed ephemeral storage (caching, rate limiting, task queues).
+
+```mermaid
+erDiagram
+    USERS ||--o{ SCANS : performs
+    USERS ||--o{ SIMULATIONS : runs
+    USERS ||--o{ REPORTS : generates
+    
+    USERS {
+        uuid id PK
+        string username
+        string password_hash
+        string role
+    }
+    
+    SCANS {
+        uuid id PK
+        uuid user_id FK
+        string domain
+        string vulnerability_status
+        json details
+        timestamp scanned_at
+    }
+    
+    SIMULATIONS {
+        uuid id PK
+        uuid user_id FK
+        string target_algorithm
+        int key_size
+        json quantum_metrics
+        timestamp simulated_at
+    }
+    
+    REPORTS {
+        uuid id PK
+        uuid user_id FK
+        string compliance_score
+        json recommendations
+        timestamp generated_at
+    }
+```
+
+### 4.4. Application Workflow
+A typical asynchronous sequence showing how heavy quantum calculations are offloaded to Celery workers while keeping the UI responsive.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as React Frontend
+    participant GW as API Gateway
+    participant Redis as Redis Queue
+    participant Worker as Celery Worker
+    participant DB as PostgreSQL
+
+    User->>UI: Request Quantum Simulation (e.g. RSA-2048)
+    UI->>GW: POST /api/v1/simulate
+    GW->>GW: Validate JWT & Rate Limit
+    GW->>Redis: Enqueue Simulation Task
+    GW-->>UI: 202 Accepted (Returns Task ID)
+    
+    Note over Redis,Worker: Background Processing
+    Redis->>Worker: Consume Task
+    Worker->>Worker: Run Shor's Algorithm Emulation
+    Worker->>DB: Save Simulation Results
+    Worker->>Redis: Update Task Status to COMPLETED
+    
+    Note over UI,GW: Client Polling
+    UI->>GW: GET /api/v1/simulate/status/{TaskID}
+    GW->>Redis: Check Status
+    GW-->>UI: 200 OK (Results Ready)
+    UI-->>User: Render Quantum Metrics Dashboard
 ```
 
 ---
